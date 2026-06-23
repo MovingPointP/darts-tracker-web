@@ -11,24 +11,39 @@ interface RatingChartProps {
   color: string;
 }
 
-export function RatingChart({ records, seriesName, color }: RatingChartProps) {
-  const ratedRecords = records
-    .filter((r) => r.rating !== null)
-    .slice()
-    .sort((a, b) => a.played_at.localeCompare(b.played_at));
+/** 同じ日付の記録はレーティングの平均値にまとめ、日付昇順で返す。 */
+function aggregateByDay(
+  records: GameRecord[],
+  seriesName: string,
+): Record<string, number | string>[] {
+  const sums = new Map<string, { total: number; count: number }>();
+  for (const r of records) {
+    if (r.rating === null) continue;
+    const date = fromApiDate(r.played_at);
+    const entry = sums.get(date) ?? { total: 0, count: 0 };
+    entry.total += r.rating;
+    entry.count += 1;
+    sums.set(date, entry);
+  }
 
-  if (ratedRecords.length === 0) {
+  return Array.from(sums.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, { total, count }]) => ({
+      date,
+      [seriesName]: Math.round((total / count) * 100) / 100,
+    }));
+}
+
+export function RatingChart({ records, seriesName, color }: RatingChartProps) {
+  const data = aggregateByDay(records, seriesName);
+
+  if (data.length === 0) {
     return (
       <Text c="dimmed" ta="center" py="xl">
         記録がまだありません
       </Text>
     );
   }
-
-  const data = ratedRecords.map((r) => ({
-    date: fromApiDate(r.played_at),
-    [seriesName]: r.rating as number,
-  }));
 
   return (
     <LineChart
