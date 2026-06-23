@@ -18,6 +18,7 @@ import {
   Alert,
 } from "@mantine/core";
 import { useAuth } from "@/lib/auth-context";
+import { RedirectIfAuthenticated } from "@/components/RedirectIfAuthenticated";
 
 const schema = z.object({
   email: z.email({ error: "有効なメールアドレスを入力してください" }),
@@ -25,6 +26,14 @@ const schema = z.object({
 });
 
 export default function LoginPage() {
+  return (
+    <RedirectIfAuthenticated>
+      <LoginForm />
+    </RedirectIfAuthenticated>
+  );
+}
+
+function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
