@@ -23,6 +23,11 @@ export function subscribe(listener: Listener) {
 }
 
 export function getFlagSnapshot(): boolean {
+  // useSyncExternalStoreの契約上getSnapshotはクライアントでのみ呼ばれるはずだが、
+  // 念のためサーバー環境での実行に備えて防御しておく。
+  if (typeof window === "undefined") {
+    return false;
+  }
   return localStorage.getItem(FLAG_KEY) === "1";
 }
 
