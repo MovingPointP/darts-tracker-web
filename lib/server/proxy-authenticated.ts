@@ -30,6 +30,8 @@ function unauthorizedResponse(): NextResponse {
 /**
  * リフレッシュトークンで新しいセッションを取得し、元のリクエストを再試行する。
  * 成功すれば新しいトークンをCookieに設定したレスポンスを返す。
+ * リフレッシュトークン自体が無効(400/401)な場合のみCookieをクリアして認証エラーとする。
+ * Goバックエンド側の一時的な障害(5xx等)ではCookieを保持したままエラーを返す。
  */
 async function refreshAndRetry(
   doFetch: (token: string) => Promise<Response>,
@@ -45,7 +47,13 @@ async function refreshAndRetry(
     body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!refreshResponse.ok) {
-    return unauthorizedResponse();
+    if (refreshResponse.status === 400 || refreshResponse.status === 401) {
+      return unauthorizedResponse();
+    }
+    return NextResponse.json(
+      { error: "セッションの更新に一時的に失敗しました" },
+      { status: refreshResponse.status },
+    );
   }
 
   const session = (await refreshResponse.json().catch(() => null)) as SupabaseSession | null;
@@ -69,11 +77,13 @@ export async function proxyAuthenticated(
   path: string,
   init?: RequestInit,
 ): Promise<NextResponse> {
-  const doFetch = (token: string) =>
-    callGoBackend(path, {
-      ...init,
-      headers: { ...init?.headers, Authorization: `Bearer ${token}` },
-    });
+  const doFetch = (token: string) => {
+    // Headersインスタンスはプロパティが列挙不可能なため、スプレッド構文では
+    // 中身が消えてしまう。Headersコンストラクタで安全にマージする。
+    const headers = new Headers(init?.headers);
+    headers.set("Authorization", `Bearer ${token}`);
+    return callGoBackend(path, { ...init, headers });
+  };
 
   const accessToken = await getAccessToken();
   if (accessToken) {

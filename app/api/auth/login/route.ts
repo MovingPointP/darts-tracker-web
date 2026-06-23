@@ -13,11 +13,11 @@ interface SupabaseLoginResponse {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const body = await request.text();
   const goResponse = await callGoBackend("/api/v1/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body,
   });
 
   const data = (await goResponse

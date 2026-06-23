@@ -14,11 +14,24 @@ function emitChange() {
   }
 }
 
-/** useSyncExternalStore用のsubscribe関数。 */
+/**
+ * useSyncExternalStore用のsubscribe関数。
+ * 他タブでの変更も`storage`イベント経由で検知し、ログイン状態をタブ間で同期する
+ * (`storage`イベントは変更元のタブ自身では発火しないため、emitChangeと併用する)。
+ */
 export function subscribe(listener: Listener) {
   listeners = [...listeners, listener];
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === FLAG_KEY) {
+      listener();
+    }
+  };
+  window.addEventListener("storage", handleStorage);
+
   return () => {
     listeners = listeners.filter((l) => l !== listener);
+    window.removeEventListener("storage", handleStorage);
   };
 }
 
