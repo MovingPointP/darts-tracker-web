@@ -11,6 +11,7 @@ import {
   Select,
   Title,
 } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordTable } from "@/components/RecordTable";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
@@ -40,14 +41,31 @@ function RecordsList() {
   const gameType = filter === "all" ? undefined : (filter as GameType);
   const { records, isLoading, updateRecord, deleteRecord } = useGameRecords(gameType);
 
+  const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
+  const [rangeStart, rangeEnd] = dateRange;
+  const filteredRecords = records.filter((r) => {
+    const playedDate = fromApiDate(r.played_at);
+    if (rangeStart && playedDate < rangeStart) return false;
+    if (rangeEnd && playedDate > rangeEnd) return false;
+    return true;
+  });
+
   const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(records.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredRecords.length / PAGE_SIZE);
   // 削除等でページ数が減った場合に、表示中のページが範囲外にならないようクランプする
   const safePage = Math.min(page, Math.max(totalPages, 1));
-  const pageRecords = records.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pageRecords = filteredRecords.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE,
+  );
 
   const handleFilterChange = (value: string | null) => {
     setFilter(value ?? "all");
+    setPage(1);
+  };
+
+  const handleDateRangeChange = (value: [string | null, string | null]) => {
+    setDateRange(value);
     setPage(1);
   };
 
@@ -83,15 +101,26 @@ function RecordsList() {
 
   return (
     <Container size="md">
-      <Group justify="space-between" mb="md">
+      <Group justify="space-between" mb="md" wrap="wrap">
         <Title order={2}>記録一覧</Title>
-        <Select
-          data={FILTER_OPTIONS}
-          value={filter}
-          onChange={handleFilterChange}
-          w={200}
-          allowDeselect={false}
-        />
+        <Group wrap="wrap">
+          <DatePickerInput
+            type="range"
+            placeholder="期間で絞り込み"
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            valueFormat="YYYY-MM-DD"
+            clearable
+            w={260}
+          />
+          <Select
+            data={FILTER_OPTIONS}
+            value={filter}
+            onChange={handleFilterChange}
+            w={200}
+            allowDeselect={false}
+          />
+        </Group>
       </Group>
 
       {errorMessage && (
