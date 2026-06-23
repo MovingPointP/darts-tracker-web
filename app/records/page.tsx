@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Container, Group, Modal, Select, Title } from "@mantine/core";
+import {
+  Alert,
+  Center,
+  Container,
+  Group,
+  Modal,
+  Pagination,
+  Select,
+  Title,
+} from "@mantine/core";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordTable } from "@/components/RecordTable";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
@@ -16,6 +25,8 @@ const FILTER_OPTIONS = [
   { value: "countup", label: GAME_TYPE_LABELS.countup },
 ];
 
+const PAGE_SIZE = 50;
+
 export default function RecordsPage() {
   return (
     <RequireAuth>
@@ -28,6 +39,17 @@ function RecordsList() {
   const [filter, setFilter] = useState<string>("all");
   const gameType = filter === "all" ? undefined : (filter as GameType);
   const { records, isLoading, updateRecord, deleteRecord } = useGameRecords(gameType);
+
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(records.length / PAGE_SIZE);
+  // 削除等でページ数が減った場合に、表示中のページが範囲外にならないようクランプする
+  const safePage = Math.min(page, Math.max(totalPages, 1));
+  const pageRecords = records.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const handleFilterChange = (value: string | null) => {
+    setFilter(value ?? "all");
+    setPage(1);
+  };
 
   const [editing, setEditing] = useState<GameRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -66,7 +88,7 @@ function RecordsList() {
         <Select
           data={FILTER_OPTIONS}
           value={filter}
-          onChange={(value) => setFilter(value ?? "all")}
+          onChange={handleFilterChange}
           w={200}
           allowDeselect={false}
         />
@@ -79,7 +101,14 @@ function RecordsList() {
       )}
 
       {!isLoading && (
-        <RecordTable records={records} onEdit={setEditing} onDelete={handleDelete} />
+        <>
+          <RecordTable records={pageRecords} onEdit={setEditing} onDelete={handleDelete} />
+          {totalPages > 1 && (
+            <Center mt="md">
+              <Pagination total={totalPages} value={safePage} onChange={setPage} />
+            </Center>
+          )}
+        </>
       )}
 
       <Modal opened={editing !== null} onClose={() => setEditing(null)} title="記録を編集">
