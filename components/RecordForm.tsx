@@ -6,11 +6,24 @@ import { Button, NumberInput, Select, Stack } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { GAME_TYPE_LABELS, type GameType } from "@/types/record";
 
-const schema = z.object({
-  game_type: z.enum(["01game", "cricket", "countup"]),
-  value: z.number({ error: "数値を入力してください" }),
-  played_at: z.string().min(1, { error: "日付を選択してください" }),
-});
+// バックエンド(maxValueForGameType)と揃えた種目ごとの理論上の最大値
+const MAX_VALUES: Record<GameType, number> = {
+  "01game": 180, // 1ラウンド(3投)の最大点(トリプル20×3)
+  cricket: 9, // 1ラウンド(3投)の最大マーク数(トリプル×3投)
+  countup: 1440, // DARTSLIVE標準8ラウンド(24投)でのトリプル20連続
+};
+
+const schema = z
+  .object({
+    game_type: z.enum(["01game", "cricket", "countup"]),
+    value: z.number({ error: "数値を入力してください" }),
+    played_at: z.string().min(1, { error: "日付を選択してください" }),
+  })
+  .refine((data) => data.value <= MAX_VALUES[data.game_type], {
+    error: (issue) =>
+      `${MAX_VALUES[(issue.input as { game_type: GameType }).game_type]}以下で入力してください`,
+    path: ["value"],
+  });
 
 export interface RecordFormValues {
   game_type: GameType;
@@ -64,6 +77,7 @@ export function RecordForm({
         <NumberInput
           label={VALUE_LABELS[form.values.game_type]}
           min={0}
+          max={MAX_VALUES[form.values.game_type]}
           decimalScale={2}
           {...form.getInputProps("value")}
         />
