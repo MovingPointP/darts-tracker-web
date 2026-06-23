@@ -6,9 +6,13 @@ import { clearAuthCookies, getAccessToken, getRefreshToken, setAuthCookies } fro
 interface SupabaseSession {
   access_token: string;
   refresh_token: string;
-  expires_in: number;
+  expires_in?: number;
   [key: string]: unknown;
 }
+
+type RefreshResult =
+  | { ok: true; session: SupabaseSession }
+  | { ok: false; reason: "unauthorized" | "temporary"; status: number };
 
 async function buildResponse(goResponse: Response): Promise<NextResponse> {
   if (goResponse.status === 204) {
@@ -27,6 +31,52 @@ function unauthorizedResponse(): NextResponse {
   return res;
 }
 
+async function performRefresh(): Promise<RefreshResult> {
+  const refreshToken = await getRefreshToken();
+  if (!refreshToken) {
+    return { ok: false, reason: "unauthorized", status: 401 };
+  }
+
+  const refreshResponse = await callGoBackend("/api/v1/auth/refresh", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!refreshResponse.ok) {
+    const reason =
+      refreshResponse.status === 400 || refreshResponse.status === 401
+        ? "unauthorized"
+        : "temporary";
+    return { ok: false, reason, status: refreshResponse.status };
+  }
+
+  const session = (await refreshResponse.json().catch(() => null)) as SupabaseSession | null;
+  if (!session?.access_token || !session.refresh_token) {
+    return { ok: false, reason: "unauthorized", status: 401 };
+  }
+  return { ok: true, session };
+}
+
+// 同一サーバーレスインスタンス内で進行中のリフレッシュ処理を共有するためのキャッシュ。
+// Supabaseのリフレッシュトークンローテーションが有効な場合、1つのrefresh_tokenは
+// 一度使うと無効化されるため、複数のAPIリクエストがほぼ同時に401を受け取ると、
+// それぞれが個別にリフレッシュを試みて片方が失敗し、誤ってログアウトされてしまう
+// (例: stats画面は01Game/クリケットの記録を2本同時にfetchする)。
+// この変数で同時実行を1回のリフレッシュ呼び出しにまとめることで、その競合を防ぐ。
+// ただし複数のサーバーレスインスタンスをまたぐ競合までは防げないため、根本対策としては
+// Supabase側でRefresh Token RotationのGrace Period(再利用許容秒数)を設定することを推奨する。
+let pendingRefresh: Promise<RefreshResult> | null = null;
+
+async function refreshSession(): Promise<RefreshResult> {
+  if (!pendingRefresh) {
+    pendingRefresh = performRefresh().finally(() => {
+      pendingRefresh = null;
+    });
+  }
+  return pendingRefresh;
+}
+
 /**
  * リフレッシュトークンで新しいセッションを取得し、元のリクエストを再試行する。
  * 成功すれば新しいトークンをCookieに設定したレスポンスを返す。
@@ -36,34 +86,22 @@ function unauthorizedResponse(): NextResponse {
 async function refreshAndRetry(
   doFetch: (token: string) => Promise<Response>,
 ): Promise<NextResponse> {
-  const refreshToken = await getRefreshToken();
-  if (!refreshToken) {
-    return unauthorizedResponse();
-  }
+  const result = await refreshSession();
 
-  const refreshResponse = await callGoBackend("/api/v1/auth/refresh", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
-  if (!refreshResponse.ok) {
-    if (refreshResponse.status === 400 || refreshResponse.status === 401) {
+  if (!result.ok) {
+    if (result.reason === "unauthorized") {
       return unauthorizedResponse();
     }
     return NextResponse.json(
       { error: "セッションの更新に一時的に失敗しました" },
-      { status: refreshResponse.status },
+      { status: result.status },
     );
   }
 
-  const session = (await refreshResponse.json().catch(() => null)) as SupabaseSession | null;
-  if (!session?.access_token || !session.refresh_token) {
-    return unauthorizedResponse();
-  }
-
+  const { session } = result;
   const goResponse = await doFetch(session.access_token);
   const finalResponse = await buildResponse(goResponse);
-  setAuthCookies(finalResponse, session.access_token, session.refresh_token, session.expires_in);
+  setAuthCookies(finalResponse, session.access_token, session.refresh_token, session.expires_in ?? 3600);
   return finalResponse;
 }
 
