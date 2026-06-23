@@ -3,36 +3,27 @@
 import { useCallback } from "react";
 import { useAuth } from "./auth-context";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
-
 /**
- * Goバックエンドへのリクエストを行うフック。
- * 401が返った場合は一度だけrefreshAccessTokenを試み、再リクエストする。
+ * Next.js自身のBFF(/api/...)へリクエストするフック。
+ * 認証Cookieは同一オリジンなので自動送信される。トークンのリフレッシュは
+ * BFF側(proxyAuthenticated)で完結するため、ここでは401時にログアウトするだけでよい。
  */
 export function useApiClient() {
-  const { accessToken, refreshAccessToken, logout } = useAuth();
+  const { logout } = useAuth();
 
   const request = useCallback(
     async <T,>(path: string, init?: RequestInit): Promise<T> => {
-      const doFetch = (token: string | null) =>
-        fetch(`${API_BASE_URL}${path}`, {
-          ...init,
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            ...init?.headers,
-          },
-        });
-
-      let res = await doFetch(accessToken);
+      const res = await fetch(path, {
+        ...init,
+        headers: {
+          "Content-Type": "application/json",
+          ...init?.headers,
+        },
+      });
 
       if (res.status === 401) {
-        const newToken = await refreshAccessToken();
-        if (!newToken) {
-          logout();
-          throw new Error("セッションの有効期限が切れました。再度ログインしてください。");
-        }
-        res = await doFetch(newToken);
+        await logout();
+        throw new Error("セッションの有効期限が切れました。再度ログインしてください。");
       }
 
       if (!res.ok) {
@@ -45,7 +36,7 @@ export function useApiClient() {
       }
       return (await res.json()) as T;
     },
-    [accessToken, refreshAccessToken, logout],
+    [logout],
   );
 
   return { request };

@@ -15,8 +15,8 @@ export function useGameRecords(gameType?: GameType) {
   const { isAuthenticated } = useAuth();
 
   const key = gameType
-    ? `/api/v1/records?game_type=${gameType}`
-    : "/api/v1/records";
+    ? `/api/records?game_type=${gameType}`
+    : "/api/records";
 
   const { data, error, isLoading, mutate } = useSWR<GameRecord[]>(
     isAuthenticated ? key : null,
@@ -24,7 +24,7 @@ export function useGameRecords(gameType?: GameType) {
   );
 
   const createRecord = async (input: CreateGameRecordInput) => {
-    await request("/api/v1/records", {
+    await request("/api/records", {
       method: "POST",
       body: JSON.stringify(input),
     });
@@ -32,7 +32,7 @@ export function useGameRecords(gameType?: GameType) {
   };
 
   const updateRecord = async (id: number, input: UpdateGameRecordInput) => {
-    await request(`/api/v1/records/${id}`, {
+    await request(`/api/records/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
     });
@@ -40,7 +40,7 @@ export function useGameRecords(gameType?: GameType) {
   };
 
   const deleteRecord = async (id: number) => {
-    await request(`/api/v1/records/${id}`, { method: "DELETE" });
+    await request(`/api/records/${id}`, { method: "DELETE" });
     await mutate();
   };
 
