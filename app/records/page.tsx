@@ -25,7 +25,7 @@ const FILTER_OPTIONS = [
   { value: "countup", label: GAME_TYPE_LABELS.countup },
 ];
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 
 export default function RecordsPage() {
   return (
