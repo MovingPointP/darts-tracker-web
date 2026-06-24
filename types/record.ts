@@ -27,3 +27,15 @@ export interface UpdateGameRecordInput {
   value: number;
   played_at: string;
 }
+
+export interface PagedRecords {
+  records: GameRecord[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface DailyRating {
+  date: string;
+  rating: number;
+}
