@@ -8,10 +8,13 @@ interface RecordTableProps {
   records: GameRecord[];
   onEdit: (record: GameRecord) => void;
   onDelete: (record: GameRecord) => void;
+  minRows?: number;
 }
 
-export function RecordTable({ records, onEdit, onDelete }: RecordTableProps) {
-  if (records.length === 0) {
+export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableProps) {
+  const emptyRowCount = minRows ? Math.max(0, minRows - records.length) : 0;
+
+  if (records.length === 0 && emptyRowCount === 0) {
     return (
       <Text c="dimmed" ta="center" py="xl">
         記録がまだありません
@@ -50,6 +53,20 @@ export function RecordTable({ records, onEdit, onDelete }: RecordTableProps) {
                 >
                   削除
                 </Button>
+              </Group>
+            </Table.Td>
+          </Table.Tr>
+        ))}
+        {Array.from({ length: emptyRowCount }).map((_, i) => (
+          <Table.Tr key={`empty-${i}`} style={{ visibility: "hidden" }}>
+            <Table.Td />
+            <Table.Td />
+            <Table.Td />
+            <Table.Td />
+            <Table.Td>
+              <Group gap="xs" justify="flex-end">
+                <Button variant="subtle" size="xs">編集</Button>
+                <Button variant="subtle" size="xs" color="red">削除</Button>
               </Group>
             </Table.Td>
           </Table.Tr>

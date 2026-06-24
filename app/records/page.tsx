@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
   Alert,
-  Box,
   Center,
   Container,
   Group,
@@ -133,9 +132,12 @@ function RecordsList() {
 
       {!isLoading && (
         <>
-          <Box mih={PAGE_SIZE * 45 + 36}>
-            <RecordTable records={records} onEdit={setEditing} onDelete={handleDelete} />
-          </Box>
+          <RecordTable
+            records={records}
+            onEdit={setEditing}
+            onDelete={handleDelete}
+            minRows={PAGE_SIZE}
+          />
           {totalPages > 1 && (
             <Center mt="md">
               <Pagination total={totalPages} value={page} onChange={setPage} />
