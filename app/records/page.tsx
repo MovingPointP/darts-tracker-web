@@ -133,7 +133,7 @@ function RecordsList() {
 
       {!isLoading && (
         <>
-          <Box mih={PAGE_SIZE * 44}>
+          <Box mih={PAGE_SIZE * 45 + 36}>
             <RecordTable records={records} onEdit={setEditing} onDelete={handleDelete} />
           </Box>
           {totalPages > 1 && (
