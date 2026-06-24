@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Center,
@@ -52,6 +52,13 @@ function RecordsList() {
   });
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  // 削除等でtotalPagesが減少した際に、現在のpageが範囲外になる場合は最終ページに戻す
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page]);
 
   const handleFilterChange = (value: string | null) => {
     setFilter(value ?? "all");
