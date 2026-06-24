@@ -3,8 +3,7 @@
 import { useEffect, useRef } from "react";
 import { LineChart } from "@mantine/charts";
 import { Box, Group, ScrollArea, Text } from "@mantine/core";
-import type { GameRecord } from "@/types/record";
-import { fromApiDate } from "@/lib/date";
+import type { DailyRating } from "@/types/record";
 
 const PX_PER_POINT = 60;
 const Y_AXIS_WIDTH = 50;
@@ -15,36 +14,13 @@ const FIXED_AXIS_MARGIN = { ...CHART_MARGIN_Y, left: 5, right: 5 };
 const SCROLLABLE_CHART_MARGIN = { ...CHART_MARGIN_Y, left: 25, right: 25 };
 
 interface RatingChartProps {
-  records: GameRecord[];
+  dailyRatings: DailyRating[];
   seriesName: string;
   color: string;
 }
 
-/** 同じ日付の記録はレーティングの平均値にまとめ、日付昇順で返す。 */
-function aggregateByDay(
-  records: GameRecord[],
-  seriesName: string,
-): Record<string, number | string>[] {
-  const sums = new Map<string, { total: number; count: number }>();
-  for (const r of records) {
-    if (r.rating === null) continue;
-    const date = fromApiDate(r.played_at);
-    const entry = sums.get(date) ?? { total: 0, count: 0 };
-    entry.total += r.rating;
-    entry.count += 1;
-    sums.set(date, entry);
-  }
-
-  return Array.from(sums.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, { total, count }]) => ({
-      date,
-      [seriesName]: Math.round((total / count) * 100) / 100,
-    }));
-}
-
-export function RatingChart({ records, seriesName, color }: RatingChartProps) {
-  const data = aggregateByDay(records, seriesName);
+export function RatingChart({ dailyRatings, seriesName, color }: RatingChartProps) {
+  const data = dailyRatings.map((r) => ({ date: r.date, [seriesName]: r.rating }));
   const viewportRef = useRef<HTMLDivElement>(null);
 
   // 初期表示・データ更新時は最新(右端)が見える位置までスクロールする

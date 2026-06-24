@@ -5,22 +5,36 @@ import { useApiClient } from "./api-client";
 import { useAuth } from "./auth-context";
 import type {
   CreateGameRecordInput,
-  GameRecord,
   GameType,
+  PagedRecords,
   UpdateGameRecordInput,
 } from "@/types/record";
 
-export function useGameRecords(gameType?: GameType) {
+export interface RecordsFilter {
+  gameType?: GameType;
+  from?: string | null;
+  to?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
+export function useGameRecords(filter: RecordsFilter = {}) {
+  const { gameType, from, to, page = 1, pageSize = 20 } = filter;
   const { request } = useApiClient();
   const { isAuthenticated } = useAuth();
 
-  const key = gameType
-    ? `/api/records?game_type=${gameType}`
-    : "/api/records";
+  const params = new URLSearchParams();
+  if (gameType) params.set("game_type", gameType);
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  params.set("limit", String(pageSize));
+  params.set("offset", String((page - 1) * pageSize));
 
-  const { data, error, isLoading, mutate } = useSWR<GameRecord[]>(
+  const key = `/api/records?${params.toString()}`;
+
+  const { data, error, isLoading, mutate } = useSWR<PagedRecords>(
     isAuthenticated ? key : null,
-    (path: string) => request<GameRecord[]>(path),
+    (path: string) => request<PagedRecords>(path),
   );
 
   const createRecord = async (input: CreateGameRecordInput) => {
@@ -45,7 +59,8 @@ export function useGameRecords(gameType?: GameType) {
   };
 
   return {
-    records: data ?? [],
+    records: data?.records ?? [],
+    total: data?.total ?? 0,
     error,
     isLoading,
     createRecord,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Center,
@@ -38,26 +38,27 @@ export default function RecordsPage() {
 
 function RecordsList() {
   const [filter, setFilter] = useState<string>("all");
-  const gameType = filter === "all" ? undefined : (filter as GameType);
-  const { records, isLoading, updateRecord, deleteRecord } = useGameRecords(gameType);
-
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
+  const [page, setPage] = useState(1);
   const [rangeStart, rangeEnd] = dateRange;
-  const filteredRecords = records.filter((r) => {
-    const playedDate = fromApiDate(r.played_at);
-    if (rangeStart && playedDate < rangeStart) return false;
-    if (rangeEnd && playedDate > rangeEnd) return false;
-    return true;
+
+  const gameType = filter === "all" ? undefined : (filter as GameType);
+  const { records, total, isLoading, updateRecord, deleteRecord } = useGameRecords({
+    gameType,
+    from: rangeStart,
+    to: rangeEnd,
+    page,
+    pageSize: PAGE_SIZE,
   });
 
-  const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(filteredRecords.length / PAGE_SIZE);
-  // 削除等でページ数が減った場合に、表示中のページが範囲外にならないようクランプする
-  const safePage = Math.min(page, Math.max(totalPages, 1));
-  const pageRecords = filteredRecords.slice(
-    (safePage - 1) * PAGE_SIZE,
-    safePage * PAGE_SIZE,
-  );
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  // 削除等でtotalPagesが減少した際に、現在のpageが範囲外になる場合は最終ページに戻す
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page]);
 
   const handleFilterChange = (value: string | null) => {
     setFilter(value ?? "all");
@@ -131,10 +132,10 @@ function RecordsList() {
 
       {!isLoading && (
         <>
-          <RecordTable records={pageRecords} onEdit={setEditing} onDelete={handleDelete} />
+          <RecordTable records={records} onEdit={setEditing} onDelete={handleDelete} />
           {totalPages > 1 && (
             <Center mt="md">
-              <Pagination total={totalPages} value={safePage} onChange={setPage} />
+              <Pagination total={totalPages} value={page} onChange={setPage} />
             </Center>
           )}
         </>

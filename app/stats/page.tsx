@@ -3,7 +3,7 @@
 import { Container, Stack, Title } from "@mantine/core";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
-import { useGameRecords } from "@/lib/use-game-records";
+import { useDailyRatings } from "@/lib/use-daily-ratings";
 
 export default function StatsPage() {
   return (
@@ -14,8 +14,8 @@ export default function StatsPage() {
 }
 
 function StatsContent() {
-  const { records: gameRecords01 } = useGameRecords("01game");
-  const { records: cricketRecords } = useGameRecords("cricket");
+  const { dailyRatings: ratings01 } = useDailyRatings("01game");
+  const { dailyRatings: ratingsCricket } = useDailyRatings("cricket");
 
   return (
     <Container size="md">
@@ -27,13 +27,13 @@ function StatsContent() {
           <Title order={4} mb="sm">
             01Game
           </Title>
-          <RatingChart records={gameRecords01} seriesName="01Gameレーティング" color="indigo.6" />
+          <RatingChart dailyRatings={ratings01} seriesName="01Gameレーティング" color="indigo.6" />
         </div>
         <div>
           <Title order={4} mb="sm">
             クリケット
           </Title>
-          <RatingChart records={cricketRecords} seriesName="クリケットレーティング" color="teal.6" />
+          <RatingChart dailyRatings={ratingsCricket} seriesName="クリケットレーティング" color="teal.6" />
         </div>
       </Stack>
     </Container>
