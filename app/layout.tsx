@@ -10,13 +10,13 @@ import {
   createTheme,
   mantineHtmlProps,
 } from "@mantine/core";
+import { AuthProvider } from "@/lib/auth-context";
+import { AppShellNav } from "@/components/AppShellNav";
 
 const theme = createTheme({
   primaryColor: "teal",
   defaultRadius: "md",
 });
-import { AuthProvider } from "@/lib/auth-context";
-import { AppShellNav } from "@/components/AppShellNav";
 
 export const metadata: Metadata = {
   title: "ダーツ得点記録",
