@@ -19,6 +19,8 @@ function ratingColor(rating: number): string {
   return "teal.9";
 }
 
+const ROW_HEIGHT = 56;
+
 export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableProps) {
   const emptyRowCount = minRows ? Math.max(0, minRows - records.length) : 0;
 
@@ -50,7 +52,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
       </Table.Thead>
       <Table.Tbody>
         {records.map((record) => (
-          <Table.Tr key={record.id}>
+          <Table.Tr key={record.id} style={{ height: ROW_HEIGHT }}>
             <Table.Td ta="center">
               <Text size="md">{fromApiDate(record.played_at)}</Text>
             </Table.Td>
@@ -84,17 +86,8 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
           </Table.Tr>
         ))}
         {Array.from({ length: emptyRowCount }).map((_, i) => (
-          <Table.Tr key={`empty-${i}`} style={{ visibility: "hidden" }}>
-            <Table.Td><Text size="md">—</Text></Table.Td>
-            <Table.Td><Badge variant="light" size="md" radius="sm" w={90}>—</Badge></Table.Td>
-            <Table.Td><Text size="md" fw={600}>—</Text></Table.Td>
-            <Table.Td><Badge variant="filled" size="md" radius="sm" w={56}>—</Badge></Table.Td>
-            <Table.Td>
-              <Group gap={4} justify="flex-end">
-                <ActionIcon variant="subtle" color="gray" size="md"><IconPencil size={14} /></ActionIcon>
-                <ActionIcon variant="subtle" color="red" size="md"><IconTrash size={14} /></ActionIcon>
-              </Group>
-            </Table.Td>
+          <Table.Tr key={`empty-${i}`} style={{ visibility: "hidden", height: ROW_HEIGHT }}>
+            <Table.Td colSpan={5} />
           </Table.Tr>
         ))}
       </Table.Tbody>
