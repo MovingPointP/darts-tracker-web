@@ -7,8 +7,14 @@ import type { Metadata } from "next";
 import {
   ColorSchemeScript,
   MantineProvider,
+  createTheme,
   mantineHtmlProps,
 } from "@mantine/core";
+
+const theme = createTheme({
+  primaryColor: "teal",
+  defaultRadius: "md",
+});
 import { AuthProvider } from "@/lib/auth-context";
 import { AppShellNav } from "@/components/AppShellNav";
 
@@ -26,10 +32,10 @@ export default function RootLayout({
   return (
     <html lang="ja" {...mantineHtmlProps}>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="dark" />
       </head>
       <body>
-        <MantineProvider>
+        <MantineProvider theme={theme} defaultColorScheme="dark">
           <AuthProvider>
             <AppShellNav>{children}</AppShellNav>
           </AuthProvider>
