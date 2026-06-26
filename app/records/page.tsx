@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Alert,
+  Badge,
   Center,
   Container,
   Group,
@@ -103,7 +104,14 @@ function RecordsList() {
   return (
     <Container size="md">
       <Group justify="space-between" mb="md" wrap="wrap">
-        <Title order={2}>記録一覧</Title>
+        <Group gap="xs" align="center">
+          <Title order={2}>記録一覧</Title>
+          {total > 0 && (
+            <Badge color="teal" variant="light" size="lg" radius="sm">
+              {total}件
+            </Badge>
+          )}
+        </Group>
         <Group wrap="wrap">
           <DatePickerInput
             type="range"

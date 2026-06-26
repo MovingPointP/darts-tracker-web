@@ -5,19 +5,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   AppShell,
+  Box,
   Burger,
   Group,
   NavLink,
+  Text,
   Title,
   Button,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import {
+  IconList,
+  IconPlus,
+  IconChartLine,
+  IconLogout,
+} from "@tabler/icons-react";
 import { useAuth } from "@/lib/auth-context";
 
 const NAV_ITEMS = [
-  { href: "/records", label: "記録一覧" },
-  { href: "/records/new", label: "記録入力" },
-  { href: "/stats", label: "レーティング推移" },
+  { href: "/records", label: "記録一覧", icon: IconList },
+  { href: "/records/new", label: "記録入力", icon: IconPlus },
+  { href: "/stats", label: "レーティング推移", icon: IconChartLine },
 ];
 
 export function AppShellNav({ children }: { children: ReactNode }) {
@@ -26,36 +34,73 @@ export function AppShellNav({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   if (!isAuthenticated) {
-    // ログイン前は素のレイアウトのみ表示する
     return <>{children}</>;
   }
 
   return (
     <AppShell
-      header={{ height: 60 }}
-      navbar={{ width: 220, breakpoint: "sm", collapsed: { mobile: !opened } }}
+      header={{ height: 70 }}
+      navbar={{ width: 230, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
+      styles={{
+        header: {
+          backgroundColor: "var(--mantine-color-dark-9)",
+          borderBottom: "1px solid var(--mantine-color-dark-5)",
+        },
+        navbar: {
+          backgroundColor: "var(--mantine-color-dark-8)",
+          borderRight: "1px solid var(--mantine-color-dark-6)",
+        },
+        main: {
+          backgroundColor: "var(--mantine-color-dark-7)",
+        },
+      }}
     >
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between">
-          <Group>
+          <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={4}>ダーツ得点記録</Title>
+            <Box
+              style={{
+                width: 4,
+                height: 32,
+                backgroundColor: "var(--mantine-color-teal-5)",
+                borderRadius: 2,
+              }}
+            />
+            <Title order={3} style={{ letterSpacing: "0.06em" }}>
+              <Text span c="teal.4" fw={900} inherit>DARTS</Text>
+              <Text span c="dark.1" fw={300} inherit> TRACKER</Text>
+            </Title>
           </Group>
-          <Button variant="subtle" size="xs" onClick={logout}>
+          <Button
+            variant="subtle"
+            color="gray"
+            size="sm"
+            leftSection={<IconLogout size={15} />}
+            onClick={logout}
+          >
             ログアウト
           </Button>
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="sm" pt="lg">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
             component={Link}
             href={item.href}
             label={item.label}
+            leftSection={<item.icon size={17} stroke={1.5} />}
             active={pathname === item.href}
+            color="teal"
+            styles={{
+              root: {
+                borderRadius: "var(--mantine-radius-md)",
+                marginBottom: 4,
+              },
+            }}
           />
         ))}
       </AppShell.Navbar>

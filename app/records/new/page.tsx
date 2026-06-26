@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Container, Title } from "@mantine/core";
+import { Alert, Container, Paper, Title } from "@mantine/core";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
 import { useGameRecords } from "@/lib/use-game-records";
@@ -41,7 +41,7 @@ function NewRecordForm() {
 
   return (
     <Container size="xs">
-      <Title order={2} mb="md">
+      <Title order={2} mb="lg">
         記録入力
       </Title>
       {errorMessage && (
@@ -49,11 +49,13 @@ function NewRecordForm() {
           {errorMessage}
         </Alert>
       )}
-      <RecordForm
-        submitLabel="記録する"
-        submitting={submitting}
-        onSubmit={handleSubmit}
-      />
+      <Paper p="xl" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
+        <RecordForm
+          submitLabel="記録する"
+          submitting={submitting}
+          onSubmit={handleSubmit}
+        />
+      </Paper>
     </Container>
   );
 }
