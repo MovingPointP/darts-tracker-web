@@ -7,6 +7,7 @@ import {
   Center,
   Container,
   Group,
+  Loader,
   Modal,
   Pagination,
   Select,
@@ -44,7 +45,7 @@ function RecordsList() {
   const [rangeStart, rangeEnd] = dateRange;
 
   const gameType = filter === "all" ? undefined : (filter as GameType);
-  const { records, total, isLoading, updateRecord, deleteRecord } = useGameRecords({
+  const { records, total, isLoading, error, updateRecord, deleteRecord } = useGameRecords({
     gameType,
     from: rangeStart,
     to: rangeEnd,
@@ -73,20 +74,26 @@ function RecordsList() {
 
   const [editing, setEditing] = useState<GameRecord | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleModalClose = () => {
+    setEditing(null);
+    setUpdateError(null);
+  };
 
   const handleUpdate = async (values: RecordFormValues) => {
     if (!editing) return;
     setSubmitting(true);
-    setErrorMessage(null);
+    setUpdateError(null);
     try {
       await updateRecord(editing.id, {
         value: values.value,
         played_at: toApiDate(values.played_at),
       });
-      setEditing(null);
+      handleModalClose();
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "記録の更新に失敗しました");
+      setUpdateError(err instanceof Error ? err.message : "記録の更新に失敗しました");
     } finally {
       setSubmitting(false);
     }
@@ -97,7 +104,7 @@ function RecordsList() {
     try {
       await deleteRecord(record.id);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "記録の削除に失敗しました");
+      setDeleteError(err instanceof Error ? err.message : "記録の削除に失敗しました");
     }
   };
 
@@ -132,41 +139,60 @@ function RecordsList() {
         </Group>
       </Group>
 
-      {errorMessage && (
-        <Alert color="red" mb="md" onClose={() => setErrorMessage(null)} withCloseButton>
-          {errorMessage}
+      {error && (
+        <Alert color="red" mb="md">
+          データの取得に失敗しました
         </Alert>
       )}
 
-      {!isLoading && (
-        <>
-          <RecordTable
-            records={records}
-            onEdit={setEditing}
-            onDelete={handleDelete}
-            minRows={PAGE_SIZE}
-          />
-          {totalPages > 1 && (
-            <Center mt="md">
-              <Pagination total={totalPages} value={page} onChange={setPage} />
-            </Center>
-          )}
-        </>
+      {deleteError && (
+        <Alert color="red" mb="md" onClose={() => setDeleteError(null)} withCloseButton>
+          {deleteError}
+        </Alert>
       )}
 
-      <Modal opened={editing !== null} onClose={() => setEditing(null)} title="記録を編集">
+      {isLoading ? (
+        <Center py="xl">
+          <Loader />
+        </Center>
+      ) : (
+        !error && (
+          <>
+            <RecordTable
+              records={records}
+              onEdit={setEditing}
+              onDelete={handleDelete}
+              minRows={PAGE_SIZE}
+            />
+            {totalPages > 1 && (
+              <Center mt="md">
+                <Pagination total={totalPages} value={page} onChange={setPage} />
+              </Center>
+            )}
+          </>
+        )
+      )}
+
+      <Modal opened={editing !== null} onClose={handleModalClose} title="記録を編集">
         {editing && (
-          <RecordForm
-            initialValues={{
-              game_type: editing.game_type,
-              value: editing.value,
-              played_at: fromApiDate(editing.played_at),
-            }}
-            lockGameType
-            submitLabel="更新する"
-            submitting={submitting}
-            onSubmit={handleUpdate}
-          />
+          <>
+            {updateError && (
+              <Alert color="red" mb="md">
+                {updateError}
+              </Alert>
+            )}
+            <RecordForm
+              initialValues={{
+                game_type: editing.game_type,
+                value: editing.value,
+                played_at: fromApiDate(editing.played_at),
+              }}
+              lockGameType
+              submitLabel="更新する"
+              submitting={submitting}
+              onSubmit={handleUpdate}
+            />
+          </>
         )}
       </Modal>
     </Container>
