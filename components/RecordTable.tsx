@@ -13,9 +13,9 @@ interface RecordTableProps {
 }
 
 function ratingColor(rating: number): string {
-  if (rating >= 12) return "orange.6";
+  if (rating >= 12) return "orange.8";
   if (rating >= 9) return "orange.9";
-  if (rating >= 6) return "teal.6";
+  if (rating >= 6) return "teal.7";
   return "teal.9";
 }
 
