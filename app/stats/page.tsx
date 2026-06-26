@@ -27,13 +27,13 @@ function StatsContent() {
           <Title order={4} mb="sm">
             01Game
           </Title>
-          <RatingChart dailyRatings={ratings01} seriesName="01Gameレーティング" color="orange.6" />
+          <RatingChart dailyRatings={ratings01} seriesName="01Gameレーティング" color="orange.8" />
         </div>
         <div>
           <Title order={4} mb="sm">
             クリケット
           </Title>
-          <RatingChart dailyRatings={ratingsCricket} seriesName="クリケットレーティング" color="teal.6" />
+          <RatingChart dailyRatings={ratingsCricket} seriesName="クリケットレーティング" color="teal.7" />
         </div>
       </Stack>
     </Container>
