@@ -19,7 +19,7 @@ function ratingColor(rating: number): string {
   return "teal.9";
 }
 
-const ROW_HEIGHT = 56;
+const ROW_HEIGHT = 50;
 
 export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableProps) {
   const emptyRowCount = minRows ? Math.max(0, minRows - records.length) : 0;
@@ -33,10 +33,10 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
   }
 
   return (
-    <Table striped highlightOnHover verticalSpacing="sm" style={{ tableLayout: "fixed" }}>
+    <Table striped highlightOnHover verticalSpacing="xs" style={{ tableLayout: "fixed" }}>
       <colgroup>
         <col style={{ width: "120px" }} />
-        <col style={{ width: "110px" }} />
+        <col style={{ width: "130px" }} />
         <col style={{ width: "90px" }} />
         <col style={{ width: "110px" }} />
         <col />
@@ -57,7 +57,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
               <Text size="md">{fromApiDate(record.played_at)}</Text>
             </Table.Td>
             <Table.Td ta="center">
-              <Badge variant="light" color="dark" size="md" radius="sm" w={90} style={{ textAlign: "center" }}>
+              <Badge variant="light" color="dark" size="lg" radius="sm" w={120} style={{ textAlign: "center" }}>
                 {GAME_TYPE_LABELS[record.game_type]}
               </Badge>
             </Table.Td>
@@ -66,7 +66,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
             </Table.Td>
             <Table.Td ta="center">
               {record.rating !== null ? (
-                <Badge color={ratingColor(record.rating)} variant="light" size="md" radius="sm" w={56} style={{ textAlign: "center" }}>
+                <Badge color={ratingColor(record.rating)} variant="light" size="lg" radius="sm" w={64} style={{ textAlign: "center" }}>
                   {record.rating.toFixed(2)}
                 </Badge>
               ) : (
