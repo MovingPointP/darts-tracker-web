@@ -79,6 +79,7 @@ export function RecordForm({
           min={0}
           max={MAX_VALUES[form.values.game_type]}
           decimalScale={2}
+          hideControls
           {...form.getInputProps("value")}
         />
         <DatePickerInput
