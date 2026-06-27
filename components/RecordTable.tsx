@@ -2,7 +2,7 @@
 
 import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
-import { GAME_TYPE_LABELS, type GameRecord } from "@/types/record";
+import type { GameRecord } from "@/types/record";
 import { fromApiDate } from "@/lib/date";
 
 interface RecordTableProps {
@@ -35,16 +35,14 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
   return (
     <Table striped highlightOnHover verticalSpacing="xs" style={{ tableLayout: "fixed" }}>
       <colgroup>
-        <col style={{ width: "120px" }} />
-        <col style={{ width: "130px" }} />
-        <col style={{ width: "90px" }} />
+        <col style={{ width: "140px" }} />
         <col style={{ width: "110px" }} />
+        <col style={{ width: "120px" }} />
         <col />
       </colgroup>
       <Table.Thead>
         <Table.Tr style={{ borderBottom: "2px solid var(--mantine-color-teal-8)" }}>
           <Table.Th ta="center">日付</Table.Th>
-          <Table.Th ta="center">種目</Table.Th>
           <Table.Th ta="center">値</Table.Th>
           <Table.Th ta="center">レーティング</Table.Th>
           <Table.Th />
@@ -55,11 +53,6 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
           <Table.Tr key={record.id} style={{ height: ROW_HEIGHT }}>
             <Table.Td ta="center">
               <Text size="md">{fromApiDate(record.played_at)}</Text>
-            </Table.Td>
-            <Table.Td ta="center">
-              <Badge variant="light" color="dark" size="lg" radius="sm" w={120} style={{ textAlign: "center" }}>
-                {GAME_TYPE_LABELS[record.game_type]}
-              </Badge>
             </Table.Td>
             <Table.Td ta="center">
               <Text size="md" fw={600}>{record.value.toFixed(2)}</Text>
@@ -87,7 +80,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
         ))}
         {Array.from({ length: emptyRowCount }).map((_, i) => (
           <Table.Tr key={`empty-${i}`} style={{ visibility: "hidden", height: ROW_HEIGHT }}>
-            <Table.Td colSpan={5} />
+            <Table.Td colSpan={4} />
           </Table.Tr>
         ))}
       </Table.Tbody>

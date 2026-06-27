@@ -10,7 +10,7 @@ import {
   Loader,
   Modal,
   Pagination,
-  Select,
+  Tabs,
   Title,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
@@ -21,8 +21,7 @@ import { useGameRecords } from "@/lib/use-game-records";
 import { fromApiDate, toApiDate } from "@/lib/date";
 import { GAME_TYPE_LABELS, type GameRecord, type GameType } from "@/types/record";
 
-const FILTER_OPTIONS = [
-  { value: "all", label: "全種目" },
+const TAB_ITEMS = [
   { value: "01game", label: GAME_TYPE_LABELS["01game"] },
   { value: "cricket", label: GAME_TYPE_LABELS.cricket },
   { value: "countup", label: GAME_TYPE_LABELS.countup },
@@ -39,12 +38,12 @@ export default function RecordsPage() {
 }
 
 function RecordsList() {
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>("01game");
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
   const [page, setPage] = useState(1);
   const [rangeStart, rangeEnd] = dateRange;
 
-  const gameType = filter === "all" ? undefined : (filter as GameType);
+  const gameType = filter as GameType;
   const { records, total, isLoading, error, updateRecord, deleteRecord } = useGameRecords({
     gameType,
     from: rangeStart,
@@ -63,7 +62,7 @@ function RecordsList() {
   }, [totalPages, page]);
 
   const handleFilterChange = (value: string | null) => {
-    setFilter(value ?? "all");
+    setFilter(value ?? "01game");
     setPage(1);
   };
 
@@ -110,7 +109,7 @@ function RecordsList() {
 
   return (
     <Container size="md">
-      <Group justify="space-between" mb="md" wrap="wrap">
+      <Group justify="space-between" mb="sm" wrap="wrap">
         <Group gap="xs" align="center">
           <Title order={2}>記録一覧</Title>
           {total > 0 && (
@@ -119,25 +118,26 @@ function RecordsList() {
             </Badge>
           )}
         </Group>
-        <Group wrap="wrap">
-          <DatePickerInput
-            type="range"
-            placeholder="期間で絞り込み"
-            value={dateRange}
-            onChange={handleDateRangeChange}
-            valueFormat="YYYY-MM-DD"
-            clearable
-            w={260}
-          />
-          <Select
-            data={FILTER_OPTIONS}
-            value={filter}
-            onChange={handleFilterChange}
-            w={200}
-            allowDeselect={false}
-          />
-        </Group>
+        <DatePickerInput
+          type="range"
+          placeholder="期間で絞り込み"
+          value={dateRange}
+          onChange={handleDateRangeChange}
+          valueFormat="YYYY-MM-DD"
+          clearable
+          w={260}
+        />
       </Group>
+
+      <Tabs value={filter} onChange={handleFilterChange} mb="md">
+        <Tabs.List>
+          {TAB_ITEMS.map((item) => (
+            <Tabs.Tab key={item.value} value={item.value}>
+              {item.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+      </Tabs>
 
       {error && (
         <Alert color="red" mb="md">
