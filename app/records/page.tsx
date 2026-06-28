@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { RequireAuth } from "@/components/RequireAuth";
+import { RecordsChart } from "@/components/RecordsChart";
 import { RecordTable } from "@/components/RecordTable";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
 import { useGameRecords } from "@/lib/use-game-records";
@@ -158,6 +159,7 @@ function RecordsList() {
       ) : (
         !error && (
           <>
+            <RecordsChart records={records} />
             <RecordTable
               records={records}
               onEdit={setEditing}
