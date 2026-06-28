@@ -22,7 +22,7 @@ import { useGameRecords } from "@/lib/use-game-records";
 import { fromApiDate, toApiDate } from "@/lib/date";
 import { GAME_TYPE_LABELS, type GameRecord, type GameType } from "@/types/record";
 
-const TAB_ITEMS = [
+const TAB_ITEMS: { value: GameType; label: string }[] = [
   { value: "01game", label: GAME_TYPE_LABELS["01game"] },
   { value: "cricket", label: GAME_TYPE_LABELS.cricket },
   { value: "countup", label: GAME_TYPE_LABELS.countup },
@@ -39,12 +39,10 @@ export default function RecordsPage() {
 }
 
 function RecordsList() {
-  const [filter, setFilter] = useState<string>("01game");
+  const [gameType, setGameType] = useState<GameType>("01game");
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
   const [page, setPage] = useState(1);
   const [rangeStart, rangeEnd] = dateRange;
-
-  const gameType = filter as GameType;
   const { records, total, isLoading, error, updateRecord, deleteRecord } = useGameRecords({
     gameType,
     from: rangeStart,
@@ -63,7 +61,8 @@ function RecordsList() {
   }, [totalPages, page]);
 
   const handleFilterChange = (value: string | null) => {
-    setFilter(value ?? "01game");
+    const next = TAB_ITEMS.find((t) => t.value === value)?.value ?? "01game";
+    setGameType(next);
     setPage(1);
   };
 
@@ -130,7 +129,7 @@ function RecordsList() {
         />
       </Group>
 
-      <Tabs value={filter} onChange={handleFilterChange} mb="md">
+      <Tabs value={gameType} onChange={handleFilterChange} mb="md">
         <Tabs.List>
           {TAB_ITEMS.map((item) => (
             <Tabs.Tab key={item.value} value={item.value}>
