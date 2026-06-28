@@ -159,7 +159,7 @@ function RecordsList() {
       ) : (
         !error && (
           <>
-            <RecordsChart records={records} gameType={gameType} />
+            <RecordsChart records={records} />
             <RecordTable
               records={records}
               onEdit={setEditing}
