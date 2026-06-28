@@ -37,6 +37,12 @@ const VALUE_LABELS: Record<GameType, string> = {
   countup: "合計得点",
 };
 
+const GAME_TYPE_SELECT_DATA: { value: GameType; label: string }[] = [
+  { value: "01game", label: GAME_TYPE_LABELS["01game"] },
+  { value: "cricket", label: GAME_TYPE_LABELS.cricket },
+  { value: "countup", label: GAME_TYPE_LABELS.countup },
+];
+
 interface RecordFormProps {
   initialValues?: RecordFormValues;
   lockGameType?: boolean;
@@ -66,11 +72,7 @@ export function RecordForm({
       <Stack>
         <Select
           label="種目"
-          data={[
-            { value: "01game", label: GAME_TYPE_LABELS["01game"] },
-            { value: "cricket", label: GAME_TYPE_LABELS.cricket },
-            { value: "countup", label: GAME_TYPE_LABELS.countup },
-          ]}
+          data={GAME_TYPE_SELECT_DATA}
           disabled={lockGameType}
           {...form.getInputProps("game_type")}
         />
