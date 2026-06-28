@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { LineChart } from "@mantine/charts";
 import { Box } from "@mantine/core";
 import type { GameRecord } from "@/types/record";
@@ -9,9 +10,12 @@ interface RecordsChartProps {
 }
 
 export function RecordsChart({ records }: RecordsChartProps) {
-  const data = [...records]
-    .sort((a, b) => a.played_at.localeCompare(b.played_at))
-    .map((r) => ({ date: r.played_at.slice(0, 10), 値: r.value }));
+  const data = useMemo(() => {
+    if (records.length === 0) return [];
+    return [...records]
+      .sort((a, b) => a.played_at.localeCompare(b.played_at))
+      .map((r) => ({ date: r.played_at.slice(0, 10), 値: r.value }));
+  }, [records]);
 
   if (data.length === 0) return null;
 
