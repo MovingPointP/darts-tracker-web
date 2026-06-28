@@ -24,6 +24,7 @@ export function RecordsChart({ records }: RecordsChartProps) {
         series={[{ name: "値", color: "orange.8" }]}
         curveType="linear"
         withLegend={false}
+        withXAxis={false}
         withDots={data.length <= 30}
         lineChartProps={{ margin: { top: 10, left: 10, right: 15, bottom: 5 } }}
       />
