@@ -7,3 +7,8 @@ export function toApiDate(dateOnly: string): string {
 export function fromApiDate(iso: string): string {
   return iso.slice(0, 10);
 }
+
+/** 端末のローカルタイムゾーンで今日の日付を "YYYY-MM-DD" 形式で返す。 */
+export function todayLocalDate(): string {
+  return new Date().toLocaleDateString("sv");
+}

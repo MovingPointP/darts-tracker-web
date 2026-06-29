@@ -4,6 +4,7 @@ import { z } from "zod";
 import { useForm, schemaResolver } from "@mantine/form";
 import { Button, NumberInput, Select, Stack } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
+import { todayLocalDate } from "@/lib/date";
 import { GAME_TYPE_LABELS, type GameType } from "@/types/record";
 
 // バックエンド(maxValueForGameType)と揃えた種目ごとの理論上の最大値
@@ -62,7 +63,7 @@ export function RecordForm({
     initialValues: initialValues ?? {
       game_type: "01game",
       value: 0,
-      played_at: new Date().toISOString().slice(0, 10),
+      played_at: todayLocalDate(),
     },
     validate: schemaResolver(schema, { sync: true }),
   });
