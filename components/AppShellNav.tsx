@@ -30,7 +30,7 @@ const NAV_ITEMS = [
 ];
 
 export function AppShellNav({ children }: { children: ReactNode }) {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close }] = useDisclosure();
   const { isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -108,6 +108,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
             leftSection={<item.icon size={17} stroke={1.5} />}
             active={pathname === item.href}
             color="teal"
+            onClick={close}
             styles={{
               root: {
                 borderRadius: "var(--mantine-radius-md)",
