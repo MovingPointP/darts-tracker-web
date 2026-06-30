@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ActionIcon,
   AppShell,
   Box,
   Burger,
@@ -13,7 +14,7 @@ import {
   Title,
   Button,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconList,
   IconPlus,
@@ -29,9 +30,10 @@ const NAV_ITEMS = [
 ];
 
 export function AppShellNav({ children }: { children: ReactNode }) {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close }] = useDisclosure();
   const { isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
+  const isMobile = useMediaQuery("(max-width: 48em)");
 
   if (!isAuthenticated) {
     return <>{children}</>;
@@ -39,7 +41,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
 
   return (
     <AppShell
-      header={{ height: 70 }}
+      header={{ height: { base: 56, sm: 70 } }}
       navbar={{ width: 230, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
       styles={{
@@ -61,19 +63,30 @@ export function AppShellNav({ children }: { children: ReactNode }) {
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Box
+              w={{ base: 3, sm: 4 }}
+              h={{ base: 22, sm: 32 }}
               style={{
-                width: 4,
-                height: 32,
                 backgroundColor: "var(--mantine-color-teal-5)",
                 borderRadius: 2,
               }}
             />
-            <Title order={3} style={{ letterSpacing: "0.06em" }}>
+            <Title order={3} size={isMobile ? "h5" : undefined} style={{ letterSpacing: "0.06em" }}>
               <Text span c="teal.4" fw={900} inherit>DARTS</Text>
               <Text span c="dark.1" fw={300} inherit> TRACKER</Text>
             </Title>
           </Group>
+          <ActionIcon
+            hiddenFrom="sm"
+            variant="subtle"
+            color="gray"
+            size="lg"
+            aria-label="ログアウト"
+            onClick={logout}
+          >
+            <IconLogout size={18} />
+          </ActionIcon>
           <Button
+            visibleFrom="sm"
             variant="subtle"
             color="gray"
             size="sm"
@@ -95,6 +108,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
             leftSection={<item.icon size={17} stroke={1.5} />}
             active={pathname === item.href}
             color="teal"
+            onClick={close}
             styles={{
               root: {
                 borderRadius: "var(--mantine-radius-md)",

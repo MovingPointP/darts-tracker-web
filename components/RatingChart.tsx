@@ -7,6 +7,7 @@ import type { DailyRating } from "@/types/record";
 
 const PX_PER_POINT = 60;
 const Y_AXIS_WIDTH = 50;
+const CHART_HEIGHT = { base: 130, sm: 300 };
 // top/bottomは2チャート間で目盛り位置を揃えるために必ず一致させる(凡例なしで自動余白に頼らない)。
 // left/rightは整列に影響しないため、それぞれのチャートの見た目に合わせて個別に設定する。
 const CHART_MARGIN_Y = { top: 25, bottom: 5 };
@@ -41,7 +42,7 @@ export function RatingChart({ dailyRatings, seriesName, color }: RatingChartProp
       {/* 横スクロールしても常に見えるY軸専用チャート(線は透明にして軸だけ見せる) */}
       <Box w={Y_AXIS_WIDTH} style={{ flexShrink: 0 }}>
         <LineChart
-          h={300}
+          h={CHART_HEIGHT}
           data={data}
           dataKey="date"
           series={[{ name: seriesName, color: "transparent" }]}
@@ -54,10 +55,10 @@ export function RatingChart({ dailyRatings, seriesName, color }: RatingChartProp
       </Box>
 
       {/* 横スクロール可能な本体(Y軸は非表示にして重複させない) */}
-      <ScrollArea viewportRef={viewportRef} type="auto" pb="md" style={{ flex: 1, minWidth: 0 }}>
+      <ScrollArea viewportRef={viewportRef} type="auto" pb={{ base: "xs", sm: "md" }} style={{ flex: 1, minWidth: 0 }}>
         <Box w={data.length * PX_PER_POINT} miw="100%">
           <LineChart
-            h={300}
+            h={CHART_HEIGHT}
             data={data}
             dataKey="date"
             series={[{ name: seriesName, color }]}

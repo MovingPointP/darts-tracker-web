@@ -14,6 +14,7 @@ import {
   Title,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
+import { useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordsChart } from "@/components/RecordsChart";
 import { RecordTable } from "@/components/RecordTable";
@@ -39,6 +40,7 @@ export default function RecordsPage() {
 }
 
 function RecordsList() {
+  const isMobile = useMediaQuery("(max-width: 48em)");
   const [gameType, setGameType] = useState<GameType>("01game");
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
   const [page, setPage] = useState(1);
@@ -109,11 +111,11 @@ function RecordsList() {
 
   return (
     <Container size="md">
-      <Group justify="space-between" mb="sm" wrap="wrap">
-        <Group gap="xs" align="center">
-          <Title order={2}>記録一覧</Title>
+      <Group justify="space-between" gap={isMobile ? 4 : undefined} mb="sm" wrap="wrap">
+        <Group gap={isMobile ? 4 : "xs"} align="center" wrap="nowrap">
+          <Title order={2} size={isMobile ? "h6" : undefined}>記録一覧</Title>
           {total > 0 && (
-            <Badge color="teal" variant="light" size="lg" radius="sm">
+            <Badge color="teal" variant="light" size={isMobile ? "sm" : "md"} radius="sm">
               {total}件
             </Badge>
           )}
@@ -125,14 +127,16 @@ function RecordsList() {
           onChange={handleDateRangeChange}
           valueFormat="YYYY-MM-DD"
           clearable
-          w={260}
+          size={isMobile ? "xs" : "sm"}
+          w={{ base: 178, sm: 220 }}
+          ml="auto"
         />
       </Group>
 
       <Tabs value={gameType} onChange={handleFilterChange} mb="md">
         <Tabs.List>
           {TAB_ITEMS.map((item) => (
-            <Tabs.Tab key={item.value} value={item.value}>
+            <Tabs.Tab key={item.value} value={item.value} fz={{ base: "xs", sm: "sm" }} py={{ base: 6, sm: "xs" }}>
               {item.label}
             </Tabs.Tab>
           ))}
@@ -167,7 +171,7 @@ function RecordsList() {
             />
             {totalPages > 1 && (
               <Center mt="md">
-                <Pagination total={totalPages} value={page} onChange={setPage} />
+                <Pagination total={totalPages} value={page} onChange={setPage} size={isMobile ? "xs" : undefined} />
               </Center>
             )}
           </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Alert, Center, Container, Loader, Stack, Title } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
 import { useDailyRatings } from "@/lib/use-daily-ratings";
@@ -14,6 +15,7 @@ export default function StatsPage() {
 }
 
 function StatsContent() {
+  const isMobile = useMediaQuery("(max-width: 48em)");
   const { dailyRatings: ratings01, isLoading: isLoading01, error: error01 } = useDailyRatings("01game");
   const { dailyRatings: ratingsCricket, isLoading: isLoadingCricket, error: errorCricket } = useDailyRatings("cricket");
 
@@ -27,12 +29,12 @@ function StatsContent() {
 
   return (
     <Container size="md">
-      <Title order={2} mb="md">
+      <Title order={2} size={isMobile ? "h6" : undefined} mb={{ base: "sm", sm: "md" }}>
         レーティング推移
       </Title>
-      <Stack gap="xl">
+      <Stack gap={isMobile ? "md" : "xl"}>
         <div>
-          <Title order={4} mb="sm">
+          <Title order={4} size={isMobile ? "sm" : undefined} mb={{ base: 4, sm: "sm" }}>
             01Game
           </Title>
           {error01 ? (
@@ -42,7 +44,7 @@ function StatsContent() {
           )}
         </div>
         <div>
-          <Title order={4} mb="sm">
+          <Title order={4} size={isMobile ? "sm" : undefined} mb={{ base: 4, sm: "sm" }}>
             クリケット
           </Title>
           {errorCricket ? (

@@ -22,7 +22,7 @@ export function RecordsChart({ records }: RecordsChartProps) {
   return (
     <Box mb="md">
       <LineChart
-        h={200}
+        h={{ base: 130, sm: 200 }}
         data={data}
         dataKey="date"
         series={[{ name: "値", color: "orange.8" }]}
