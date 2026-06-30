@@ -25,10 +25,9 @@ const ROW_HEIGHT_MOBILE = 38;
 
 export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableProps) {
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const rowHeight = isMobile ? ROW_HEIGHT_MOBILE : ROW_HEIGHT;
+  const rowHeight = { base: ROW_HEIGHT_MOBILE, sm: ROW_HEIGHT };
   const iconSize = isMobile ? "sm" : "md";
   const badgeSize = isMobile ? "sm" : "md";
-  const headerFz = isMobile ? "xs" : "sm";
   const emptyRowCount = minRows ? Math.max(0, minRows - records.length) : 0;
 
   if (records.length === 0 && emptyRowCount === 0) {
@@ -47,23 +46,17 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
       horizontalSpacing={isMobile ? 6 : undefined}
       style={{ tableLayout: "fixed" }}
     >
-      <colgroup>
-        <col style={{ width: isMobile ? "92px" : "140px" }} />
-        <col style={{ width: isMobile ? "68px" : "110px" }} />
-        <col style={{ width: isMobile ? "66px" : "120px" }} />
-        <col />
-      </colgroup>
       <Table.Thead>
         <Table.Tr style={{ borderBottom: "2px solid var(--mantine-color-teal-8)" }}>
-          <Table.Th ta="center" fz={headerFz}>日付</Table.Th>
-          <Table.Th ta="center" fz={headerFz}>値</Table.Th>
-          <Table.Th ta="center" fz={headerFz}>RT</Table.Th>
+          <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 92, sm: 140 }}>日付</Table.Th>
+          <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 68, sm: 110 }}>値</Table.Th>
+          <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 66, sm: 120 }}>RT</Table.Th>
           <Table.Th />
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
         {records.map((record) => (
-          <Table.Tr key={record.id} style={{ height: rowHeight }}>
+          <Table.Tr key={record.id} h={rowHeight}>
             <Table.Td ta="center">
               <Text size="sm">{fromApiDate(record.played_at)}</Text>
             </Table.Td>
@@ -92,7 +85,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
           </Table.Tr>
         ))}
         {Array.from({ length: emptyRowCount }).map((_, i) => (
-          <Table.Tr key={`empty-${i}`} style={{ visibility: "hidden", height: rowHeight }}>
+          <Table.Tr key={`empty-${i}`} h={rowHeight} style={{ visibility: "hidden" }}>
             <Table.Td colSpan={4} />
           </Table.Tr>
         ))}

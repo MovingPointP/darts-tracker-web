@@ -43,7 +43,7 @@ function NewRecordForm() {
 
   return (
     <Container size="xs">
-      <Title order={2} size={isMobile ? "h6" : undefined} mb={isMobile ? "sm" : "lg"}>
+      <Title order={2} size={isMobile ? "h6" : undefined} mb={{ base: "sm", sm: "lg" }}>
         記録入力
       </Title>
       {errorMessage && (
@@ -51,7 +51,7 @@ function NewRecordForm() {
           {errorMessage}
         </Alert>
       )}
-      <Paper p={isMobile ? "md" : "xl"} radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
+      <Paper p={{ base: "md", sm: "xl" }} radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
         <RecordForm
           submitLabel="記録する"
           submitting={submitting}

@@ -128,7 +128,7 @@ function RecordsList() {
           valueFormat="YYYY-MM-DD"
           clearable
           size={isMobile ? "xs" : "sm"}
-          w={isMobile ? 178 : 220}
+          w={{ base: 178, sm: 220 }}
           ml="auto"
         />
       </Group>
@@ -136,7 +136,7 @@ function RecordsList() {
       <Tabs value={gameType} onChange={handleFilterChange} mb="md">
         <Tabs.List>
           {TAB_ITEMS.map((item) => (
-            <Tabs.Tab key={item.value} value={item.value} fz={isMobile ? "xs" : undefined} py={isMobile ? 6 : undefined}>
+            <Tabs.Tab key={item.value} value={item.value} fz={{ base: "xs", sm: "sm" }} py={{ base: 6, sm: "xs" }}>
               {item.label}
             </Tabs.Tab>
           ))}

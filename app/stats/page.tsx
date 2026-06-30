@@ -29,12 +29,12 @@ function StatsContent() {
 
   return (
     <Container size="md">
-      <Title order={2} size={isMobile ? "h6" : undefined} mb={isMobile ? "sm" : "md"}>
+      <Title order={2} size={isMobile ? "h6" : undefined} mb={{ base: "sm", sm: "md" }}>
         レーティング推移
       </Title>
       <Stack gap={isMobile ? "md" : "xl"}>
         <div>
-          <Title order={4} size={isMobile ? "sm" : undefined} mb={isMobile ? 4 : "sm"}>
+          <Title order={4} size={isMobile ? "sm" : undefined} mb={{ base: 4, sm: "sm" }}>
             01Game
           </Title>
           {error01 ? (
@@ -44,7 +44,7 @@ function StatsContent() {
           )}
         </div>
         <div>
-          <Title order={4} size={isMobile ? "sm" : undefined} mb={isMobile ? 4 : "sm"}>
+          <Title order={4} size={isMobile ? "sm" : undefined} mb={{ base: 4, sm: "sm" }}>
             クリケット
           </Title>
           {errorCricket ? (

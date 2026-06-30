@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { LineChart } from "@mantine/charts";
 import { Box } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import type { GameRecord } from "@/types/record";
 
 interface RecordsChartProps {
@@ -11,7 +10,6 @@ interface RecordsChartProps {
 }
 
 export function RecordsChart({ records }: RecordsChartProps) {
-  const isMobile = useMediaQuery("(max-width: 48em)");
   const data = useMemo(() => {
     if (records.length === 0) return [];
     return [...records]
@@ -24,7 +22,7 @@ export function RecordsChart({ records }: RecordsChartProps) {
   return (
     <Box mb="md">
       <LineChart
-        h={isMobile ? 130 : 200}
+        h={{ base: 130, sm: 200 }}
         data={data}
         dataKey="date"
         series={[{ name: "値", color: "orange.8" }]}

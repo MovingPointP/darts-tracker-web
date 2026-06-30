@@ -41,7 +41,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
 
   return (
     <AppShell
-      header={{ height: isMobile ? 56 : 70 }}
+      header={{ height: { base: 56, sm: 70 } }}
       navbar={{ width: 230, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
       styles={{
@@ -63,9 +63,9 @@ export function AppShellNav({ children }: { children: ReactNode }) {
           <Group gap="sm">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Box
+              w={{ base: 3, sm: 4 }}
+              h={{ base: 22, sm: 32 }}
               style={{
-                width: isMobile ? 3 : 4,
-                height: isMobile ? 22 : 32,
                 backgroundColor: "var(--mantine-color-teal-5)",
                 borderRadius: 2,
               }}
