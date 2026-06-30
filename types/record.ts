@@ -6,6 +6,12 @@ export const GAME_TYPE_LABELS: Record<GameType, string> = {
   countup: "COUNTUP",
 };
 
+export const VALUE_COLUMN_LABELS: Record<GameType, string> = {
+  "01game": "PPR",
+  cricket: "MPR",
+  countup: "SCORE",
+};
+
 export interface GameRecord {
   id: number;
   user_id: string;

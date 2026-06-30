@@ -165,6 +165,7 @@ function RecordsList() {
             <RecordsChart records={records} />
             <RecordTable
               records={records}
+              gameType={gameType}
               onEdit={setEditing}
               onDelete={handleDelete}
               minRows={PAGE_SIZE}

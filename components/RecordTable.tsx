@@ -3,11 +3,12 @@
 import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
-import type { GameRecord } from "@/types/record";
+import { VALUE_COLUMN_LABELS, type GameRecord, type GameType } from "@/types/record";
 import { fromApiDate } from "@/lib/date";
 
 interface RecordTableProps {
   records: GameRecord[];
+  gameType: GameType;
   onEdit: (record: GameRecord) => void;
   onDelete: (record: GameRecord) => void;
   minRows?: number;
@@ -23,7 +24,7 @@ function ratingColor(rating: number): string {
 const ROW_HEIGHT = 50;
 const ROW_HEIGHT_MOBILE = 38;
 
-export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableProps) {
+export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: RecordTableProps) {
   const isMobile = useMediaQuery("(max-width: 48em)");
   const rowHeight = { base: ROW_HEIGHT_MOBILE, sm: ROW_HEIGHT };
   const iconSize = isMobile ? "sm" : "md";
@@ -49,7 +50,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
       <Table.Thead>
         <Table.Tr style={{ borderBottom: "2px solid var(--mantine-color-teal-8)" }}>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 92, sm: 140 }}>日付</Table.Th>
-          <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 68, sm: 110 }}>値</Table.Th>
+          <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 68, sm: 110 }}>{VALUE_COLUMN_LABELS[gameType]}</Table.Th>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 66, sm: 120 }}>RT</Table.Th>
           <Table.Th />
         </Table.Tr>
