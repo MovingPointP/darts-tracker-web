@@ -14,7 +14,7 @@ import {
   Title,
   Button,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
   IconList,
   IconPlus,
@@ -33,6 +33,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
   const [opened, { toggle }] = useDisclosure();
   const { isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
+  const isMobile = useMediaQuery("(max-width: 48em)");
 
   if (!isAuthenticated) {
     return <>{children}</>;
@@ -40,7 +41,7 @@ export function AppShellNav({ children }: { children: ReactNode }) {
 
   return (
     <AppShell
-      header={{ height: 70 }}
+      header={{ height: isMobile ? 56 : 70 }}
       navbar={{ width: 230, breakpoint: "sm", collapsed: { mobile: !opened } }}
       padding="md"
       styles={{
@@ -63,13 +64,13 @@ export function AppShellNav({ children }: { children: ReactNode }) {
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
             <Box
               style={{
-                width: 4,
-                height: 32,
+                width: isMobile ? 3 : 4,
+                height: isMobile ? 22 : 32,
                 backgroundColor: "var(--mantine-color-teal-5)",
                 borderRadius: 2,
               }}
             />
-            <Title order={3} style={{ letterSpacing: "0.06em" }}>
+            <Title order={3} size={isMobile ? "h5" : undefined} style={{ letterSpacing: "0.06em" }}>
               <Text span c="teal.4" fw={900} inherit>DARTS</Text>
               <Text span c="dark.1" fw={300} inherit> TRACKER</Text>
             </Title>

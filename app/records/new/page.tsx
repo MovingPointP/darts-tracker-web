@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Container, Paper, Title } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
 import { useGameRecords } from "@/lib/use-game-records";
@@ -19,6 +20,7 @@ export default function NewRecordPage() {
 function NewRecordForm() {
   const { createRecord } = useGameRecords();
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 48em)");
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -41,7 +43,7 @@ function NewRecordForm() {
 
   return (
     <Container size="xs">
-      <Title order={2} mb="lg">
+      <Title order={2} size={isMobile ? "h6" : undefined} mb={isMobile ? "sm" : "lg"}>
         記録入力
       </Title>
       {errorMessage && (
@@ -49,7 +51,7 @@ function NewRecordForm() {
           {errorMessage}
         </Alert>
       )}
-      <Paper p="xl" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
+      <Paper p={isMobile ? "md" : "xl"} radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
         <RecordForm
           submitLabel="記録する"
           submitting={submitting}

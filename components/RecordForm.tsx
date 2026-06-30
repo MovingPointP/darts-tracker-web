@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { useForm, schemaResolver } from "@mantine/form";
 import { Button, NumberInput, Select, Stack } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { DatePickerInput } from "@mantine/dates";
 import { todayLocalDate } from "@/lib/date";
 import { GAME_TYPE_LABELS, type GameType } from "@/types/record";
@@ -59,6 +60,9 @@ export function RecordForm({
   submitting,
   onSubmit,
 }: RecordFormProps) {
+  const isMobile = useMediaQuery("(max-width: 48em)");
+  const fieldSize = isMobile ? "xs" : undefined;
+
   const form = useForm<RecordFormValues>({
     initialValues: initialValues ?? {
       game_type: "01game",
@@ -70,15 +74,17 @@ export function RecordForm({
 
   return (
     <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
-      <Stack>
+      <Stack gap={isMobile ? "sm" : undefined}>
         <Select
           label="種目"
+          size={fieldSize}
           data={GAME_TYPE_SELECT_DATA}
           disabled={lockGameType}
           {...form.getInputProps("game_type")}
         />
         <NumberInput
           label={VALUE_LABELS[form.values.game_type]}
+          size={fieldSize}
           min={0}
           max={MAX_VALUES[form.values.game_type]}
           decimalScale={2}
@@ -87,10 +93,11 @@ export function RecordForm({
         />
         <DatePickerInput
           label="プレイ日"
+          size={fieldSize}
           valueFormat="YYYY-MM-DD"
           {...form.getInputProps("played_at")}
         />
-        <Button type="submit" loading={submitting}>
+        <Button type="submit" size={fieldSize} loading={submitting}>
           {submitLabel}
         </Button>
       </Stack>
