@@ -65,7 +65,7 @@ export function RecordTable({ records, onEdit, onDelete, minRows }: RecordTableP
             </Table.Td>
             <Table.Td ta="center">
               {record.rating !== null ? (
-                <Badge color={ratingColor(record.rating)} variant="light" size={badgeSize} radius="sm" w={52} style={{ textAlign: "center" }}>
+                <Badge color={ratingColor(record.rating)} variant="light" size={badgeSize} radius="sm" w={{ base: 52, sm: 64 }} style={{ textAlign: "center" }}>
                   {record.rating.toFixed(2)}
                 </Badge>
               ) : (
