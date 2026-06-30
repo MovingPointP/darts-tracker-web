@@ -21,7 +21,7 @@ const theme = createTheme({
 export const metadata: Metadata = {
   title: "ダーツ得点記録",
   description:
-    "01Game・クリケット・COUNTUPの記録とレーティング推移を管理する個人用アプリ",
+    "01Game・クリケット・COUNTUPの記録とレーティング推移を管理するアプリ",
 };
 
 export default function RootLayout({
