@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Alert,
   Badge,
+  Button,
   Center,
   Container,
   Group,
@@ -11,6 +12,7 @@ import {
   Modal,
   Pagination,
   Tabs,
+  Text,
   Title,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
@@ -78,6 +80,7 @@ function RecordsList() {
   const [submitting, setSubmitting] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<GameRecord | null>(null);
 
   const handleModalClose = () => {
     setEditing(null);
@@ -101,12 +104,18 @@ function RecordsList() {
     }
   };
 
-  const handleDelete = async (record: GameRecord) => {
-    if (!window.confirm("この記録を削除しますか？")) return;
+  const handleDelete = (record: GameRecord) => {
+    setPendingDelete(record);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!pendingDelete) return;
     try {
-      await deleteRecord(record.id);
+      await deleteRecord(pendingDelete.id);
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "記録の削除に失敗しました");
+    } finally {
+      setPendingDelete(null);
     }
   };
 
@@ -180,7 +189,7 @@ function RecordsList() {
         )
       )}
 
-      <Modal opened={editing !== null} onClose={handleModalClose} title="記録を編集">
+      <Modal opened={editing !== null} onClose={handleModalClose} title="記録を編集" lockScroll={false}>
         {editing && (
           <>
             {updateError && (
@@ -201,6 +210,23 @@ function RecordsList() {
             />
           </>
         )}
+      </Modal>
+
+      <Modal
+        opened={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        title="記録を削除"
+        lockScroll={false}
+      >
+        <Text mb="lg">この記録を削除しますか？この操作は元に戻せません。</Text>
+        <Group justify="flex-end" gap="sm">
+          <Button variant="default" onClick={() => setPendingDelete(null)}>
+            キャンセル
+          </Button>
+          <Button color="red" onClick={handleDeleteConfirm}>
+            削除する
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );
