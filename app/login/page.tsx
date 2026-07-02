@@ -17,6 +17,7 @@ import {
   Title,
   Alert,
 } from "@mantine/core";
+import { useDocumentTitle } from "@mantine/hooks";
 import { useAuth } from "@/lib/auth-context";
 import { RedirectIfAuthenticated } from "@/components/RedirectIfAuthenticated";
 
@@ -34,6 +35,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  useDocumentTitle("ログイン | DARTS TRACKER");
   const { login } = useAuth();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);

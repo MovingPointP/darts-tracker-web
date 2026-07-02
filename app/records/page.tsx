@@ -14,7 +14,7 @@ import {
   Title,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordsChart } from "@/components/RecordsChart";
 import { RecordTable } from "@/components/RecordTable";
@@ -40,6 +40,7 @@ export default function RecordsPage() {
 }
 
 function RecordsList() {
+  useDocumentTitle("記録一覧 | DARTS TRACKER");
   const isMobile = useMediaQuery("(max-width: 48em)");
   const [gameType, setGameType] = useState<GameType>("01game");
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);

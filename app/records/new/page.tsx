@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Container, Paper, Title } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
 import { useGameRecords } from "@/lib/use-game-records";
@@ -18,6 +18,7 @@ export default function NewRecordPage() {
 }
 
 function NewRecordForm() {
+  useDocumentTitle("記録入力 | DARTS TRACKER");
   const { createRecord } = useGameRecords();
   const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 48em)");

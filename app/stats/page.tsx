@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, Center, Container, Loader, Stack, Title } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
 import { useDailyRatings } from "@/lib/use-daily-ratings";
@@ -15,6 +15,7 @@ export default function StatsPage() {
 }
 
 function StatsContent() {
+  useDocumentTitle("レーティング推移 | DARTS TRACKER");
   const isMobile = useMediaQuery("(max-width: 48em)");
   const { dailyRatings: ratings01, isLoading: isLoading01, error: error01 } = useDailyRatings("01game");
   const { dailyRatings: ratingsCricket, isLoading: isLoadingCricket, error: errorCricket } = useDailyRatings("cricket");
