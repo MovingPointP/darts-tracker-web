@@ -12,7 +12,7 @@ import {
   NavLink,
   Text,
   Title,
-  Button,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
@@ -75,26 +75,17 @@ export function AppShellNav({ children }: { children: ReactNode }) {
               <Text span c="dark.1" fw={300} inherit> TRACKER</Text>
             </Title>
           </Group>
-          <ActionIcon
-            hiddenFrom="sm"
-            variant="subtle"
-            color="gray"
-            size="lg"
-            aria-label="ログアウト"
-            onClick={logout}
-          >
-            <IconLogout size={18} />
-          </ActionIcon>
-          <Button
-            visibleFrom="sm"
-            variant="subtle"
-            color="gray"
-            size="sm"
-            leftSection={<IconLogout size={15} />}
-            onClick={logout}
-          >
-            ログアウト
-          </Button>
+          <Tooltip label="ログアウト" position="bottom">
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="lg"
+              aria-label="ログアウト"
+              onClick={logout}
+            >
+              <IconLogout size={18} />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       </AppShell.Header>
 
