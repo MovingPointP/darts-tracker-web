@@ -34,9 +34,9 @@ export interface RecordFormValues {
 }
 
 const VALUE_LABELS: Record<GameType, string> = {
-  "01game": "1ラウンド平均点(PPR)",
-  cricket: "1ラウンド平均マーク数(MPR)",
-  countup: "合計得点",
+  "01game": "PPR(1ラウンド平均点)",
+  cricket: "MPR(1ラウンド平均マーク数)",
+  countup: "SCORE(合計得点)",
 };
 
 const GAME_TYPE_SELECT_DATA: { value: GameType; label: string }[] = [
