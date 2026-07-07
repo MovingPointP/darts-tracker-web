@@ -21,7 +21,7 @@ export const AWARDS = {
   THREE_IN_THE_BLACK: "3 IN THE BLACK",
   THREE_IN_A_BED:     "3 IN A BED",
   WHITE_HORSE:        "WHITE HORSE",
-  SIX_MARK:           "6 MARK",
+  FIVE_MARK:          "5 MARK",
   NINE_MARK:          "9 MARK",
 } as const;
 
@@ -43,7 +43,7 @@ export const AWARDS_BY_GAME_TYPE: Record<GameType, Award[]> = {
     AWARDS.THREE_IN_THE_BLACK,
     AWARDS.THREE_IN_A_BED,
     AWARDS.WHITE_HORSE,
-    AWARDS.SIX_MARK,
+    AWARDS.FIVE_MARK,
     AWARDS.NINE_MARK,
   ],
   countup: [
