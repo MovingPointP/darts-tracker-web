@@ -33,6 +33,7 @@ function NewRecordForm() {
         game_type: values.game_type,
         value: values.value,
         played_at: toApiDate(values.played_at),
+        awards: values.awards,
       });
       router.push("/records");
     } catch (err) {

@@ -2,11 +2,11 @@
 
 import { z } from "zod";
 import { useForm, schemaResolver } from "@mantine/form";
-import { Button, NumberInput, Select, Stack } from "@mantine/core";
+import { Button, Group, NumberInput, Select, Stack, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { DatePickerInput } from "@mantine/dates";
 import { todayLocalDate } from "@/lib/date";
-import { GAME_TYPE_LABELS, type GameType } from "@/types/record";
+import { AWARDS_BY_GAME_TYPE, GAME_TYPE_LABELS, type GameType } from "@/types/record";
 
 // バックエンド(maxValueForGameType)と揃えた種目ごとの理論上の最大値
 const MAX_VALUES: Record<GameType, number> = {
@@ -20,6 +20,7 @@ const schema = z
     game_type: z.enum(["01game", "cricket", "countup"]),
     value: z.number({ error: "数値を入力してください" }),
     played_at: z.string().min(1, { error: "日付を選択してください" }),
+    awards: z.record(z.string(), z.number().int().min(0)),
   })
   .refine((data) => data.value <= MAX_VALUES[data.game_type], {
     error: (issue) =>
@@ -31,6 +32,7 @@ export interface RecordFormValues {
   game_type: GameType;
   value: number;
   played_at: string;
+  awards: Record<string, number>;
 }
 
 const VALUE_LABELS: Record<GameType, string> = {
@@ -68,19 +70,41 @@ export function RecordForm({
       game_type: "01game",
       value: 0,
       played_at: todayLocalDate(),
+      awards: {},
     },
     validate: schemaResolver(schema, { sync: true }),
   });
 
+  const availableAwards = AWARDS_BY_GAME_TYPE[form.values.game_type];
+
+  const handleGameTypeChange = (value: string | null) => {
+    const next = (value ?? "01game") as GameType;
+    form.setValues({ game_type: next, awards: {} });
+  };
+
+  const handleAwardChange = (award: string, val: string | number) => {
+    const count = typeof val === "number" ? Math.max(0, Math.floor(val)) : 0;
+    form.setFieldValue("awards", { ...form.values.awards, [award]: count });
+  };
+
+  const handleSubmit = (values: RecordFormValues) => {
+    const filtered = Object.fromEntries(
+      Object.entries(values.awards ?? {}).filter(([, count]) => count > 0)
+    );
+    onSubmit({ ...values, awards: filtered });
+  };
+
   return (
-    <form onSubmit={form.onSubmit((values) => onSubmit(values))}>
+    <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack gap={isMobile ? "sm" : undefined}>
         <Select
           label="種目"
           size={fieldSize}
           data={GAME_TYPE_SELECT_DATA}
           disabled={lockGameType}
-          {...form.getInputProps("game_type")}
+          {...(lockGameType
+            ? form.getInputProps("game_type")
+            : { ...form.getInputProps("game_type"), onChange: handleGameTypeChange })}
         />
         <NumberInput
           label={VALUE_LABELS[form.values.game_type]}
@@ -97,6 +121,27 @@ export function RecordForm({
           valueFormat="YYYY-MM-DD"
           {...form.getInputProps("played_at")}
         />
+        <div>
+          <Text size={fieldSize ?? "sm"} fw={500} mb={6}>
+            アワード（任意）
+          </Text>
+          <Stack gap={4}>
+            {availableAwards.map((award) => (
+              <Group key={award} justify="space-between" align="center">
+                <Text size={fieldSize ?? "sm"}>{award}</Text>
+                <NumberInput
+                  value={form.values.awards?.[award] ?? 0}
+                  onChange={(val) => handleAwardChange(award, val)}
+                  min={0}
+                  max={20}
+                  decimalScale={0}
+                  size={fieldSize ?? "sm"}
+                  w={90}
+                />
+              </Group>
+            ))}
+          </Stack>
+        </div>
         <Button type="submit" size={fieldSize} loading={submitting}>
           {submitLabel}
         </Button>

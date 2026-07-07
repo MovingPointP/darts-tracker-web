@@ -52,6 +52,7 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 92, sm: 140 }}>日付</Table.Th>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 68, sm: 110 }}>{VALUE_COLUMN_LABELS[gameType]}</Table.Th>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 66, sm: 120 }}>RT</Table.Th>
+          <Table.Th fz="sm" visibleFrom="sm">アワード</Table.Th>
           <Table.Th />
         </Table.Tr>
       </Table.Thead>
@@ -73,6 +74,17 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
                 <Text size="sm" c="dimmed">—</Text>
               )}
             </Table.Td>
+            <Table.Td visibleFrom="sm">
+              {record.awards && Object.keys(record.awards).length > 0 && (
+                <Group gap={4} wrap="wrap">
+                  {Object.entries(record.awards).map(([award, count]) => (
+                    <Badge key={award} size="sm" variant="outline" color="teal" radius="sm">
+                      {count > 1 ? `${award} ×${count}` : award}
+                    </Badge>
+                  ))}
+                </Group>
+              )}
+            </Table.Td>
             <Table.Td>
               <Group gap={2} justify="flex-end" wrap="nowrap">
                 <ActionIcon variant="subtle" color="gray" size={iconSize} onClick={() => onEdit(record)}>
@@ -87,7 +99,7 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
         ))}
         {Array.from({ length: emptyRowCount }).map((_, i) => (
           <Table.Tr key={`empty-${i}`} h={rowHeight} style={{ visibility: "hidden" }}>
-            <Table.Td colSpan={4} />
+            <Table.Td colSpan={5} />
           </Table.Tr>
         ))}
       </Table.Tbody>

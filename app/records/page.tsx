@@ -96,6 +96,7 @@ function RecordsList() {
       await updateRecord(editing.id, {
         value: values.value,
         played_at: toApiDate(values.played_at),
+        awards: values.awards,
       });
       handleModalClose();
     } catch (err) {
@@ -204,6 +205,7 @@ function RecordsList() {
                 game_type: editing.game_type,
                 value: editing.value,
                 played_at: fromApiDate(editing.played_at),
+                awards: editing.awards ?? {},
               }}
               lockGameType
               submitLabel="更新する"
