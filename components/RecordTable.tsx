@@ -75,7 +75,7 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
               )}
             </Table.Td>
             <Table.Td visibleFrom="sm">
-              {Object.keys(record.awards ?? {}).length > 0 && (
+              {record.awards && Object.keys(record.awards).length > 0 && (
                 <Group gap={4} wrap="wrap">
                   {Object.entries(record.awards).map(([award, count]) => (
                     <Badge key={award} size="sm" variant="outline" color="teal" radius="sm">

@@ -89,7 +89,7 @@ export function RecordForm({
 
   const handleSubmit = (values: RecordFormValues) => {
     const filtered = Object.fromEntries(
-      Object.entries(values.awards).filter(([, count]) => count > 0)
+      Object.entries(values.awards ?? {}).filter(([, count]) => count > 0)
     );
     onSubmit({ ...values, awards: filtered });
   };
@@ -130,7 +130,7 @@ export function RecordForm({
               <Group key={award} justify="space-between" align="center">
                 <Text size={fieldSize ?? "sm"}>{award}</Text>
                 <NumberInput
-                  value={form.values.awards[award] ?? 0}
+                  value={form.values.awards?.[award] ?? 0}
                   onChange={(val) => handleAwardChange(award, val)}
                   min={0}
                   max={20}
