@@ -26,7 +26,7 @@ import { useAuth } from "@/lib/auth-context";
 const NAV_ITEMS = [
   { href: "/records", label: "記録一覧", icon: IconList },
   { href: "/records/new", label: "記録入力", icon: IconPlus },
-  { href: "/stats", label: "レーティング推移", icon: IconChartLine },
+  { href: "/stats", label: "成績サマリー", icon: IconChartLine },
 ];
 
 export function AppShellNav({ children }: { children: ReactNode }) {
