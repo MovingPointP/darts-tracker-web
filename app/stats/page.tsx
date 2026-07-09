@@ -34,6 +34,14 @@ function GameTypePanel({ gameType }: { gameType: GameType }) {
     );
   }
 
+  if (summaryError || (HAS_RATING[gameType] && ratingError)) {
+    return (
+      <Alert color="red" my="md">
+        データの取得に失敗しました
+      </Alert>
+    );
+  }
+
   const orderedAwards = AWARDS_BY_GAME_TYPE[gameType];
 
   return (
@@ -61,46 +69,38 @@ function GameTypePanel({ gameType }: { gameType: GameType }) {
         )}
       </div>
 
-      {summaryError ? (
-        <Alert color="red">集計データの取得に失敗しました</Alert>
-      ) : (
-        <div>
-          <Text fw={500} mb="xs" size={isMobile ? "sm" : undefined}>アワード獲得回数</Text>
-          <Table striped highlightOnHover style={{ tableLayout: "fixed" }}>
-            <Table.Thead>
-              <Table.Tr style={{ borderBottom: "2px solid var(--mantine-color-teal-8)" }}>
-                <Table.Th fz={{ base: "xs", sm: "sm" }}>アワード</Table.Th>
-                <Table.Th fz={{ base: "xs", sm: "sm" }} ta="right" w={80}>回数</Table.Th>
+      <div>
+        <Text fw={500} mb="xs" size={isMobile ? "sm" : undefined}>アワード獲得回数</Text>
+        <Table striped highlightOnHover style={{ tableLayout: "fixed" }}>
+          <Table.Thead>
+            <Table.Tr style={{ borderBottom: "2px solid var(--mantine-color-teal-8)" }}>
+              <Table.Th fz={{ base: "xs", sm: "sm" }}>アワード</Table.Th>
+              <Table.Th fz={{ base: "xs", sm: "sm" }} ta="right" w={80}>回数</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {orderedAwards.map((award) => (
+              <Table.Tr key={award}>
+                <Table.Td>
+                  <Badge size="sm" variant="outline" color="teal" radius="sm">{award}</Badge>
+                </Table.Td>
+                <Table.Td ta="right" fw={600} fz={{ base: "xs", sm: "sm" }} c={summary.awards?.[award] ? undefined : "dimmed"}>
+                  {summary.awards?.[award] ?? 0}
+                </Table.Td>
               </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {orderedAwards.map((award) => (
-                <Table.Tr key={award}>
-                  <Table.Td>
-                    <Badge size="sm" variant="outline" color="teal" radius="sm">{award}</Badge>
-                  </Table.Td>
-                  <Table.Td ta="right" fw={600} fz={{ base: "xs", sm: "sm" }} c={summary.awards[award] ? undefined : "dimmed"}>
-                    {summary.awards[award] ?? 0}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </div>
-      )}
+            ))}
+          </Table.Tbody>
+        </Table>
+      </div>
 
       {HAS_RATING[gameType] && (
         <div>
           <Text fw={500} mb="xs" size={isMobile ? "sm" : undefined}>レーティング推移</Text>
-          {ratingError ? (
-            <Alert color="red">データの取得に失敗しました</Alert>
-          ) : (
-            <RatingChart
-              dailyRatings={dailyRatings}
-              seriesName={`${GAME_TYPE_LABELS[gameType]}レーティング`}
-              color="orange.8"
-            />
-          )}
+          <RatingChart
+            dailyRatings={dailyRatings}
+            seriesName={`${GAME_TYPE_LABELS[gameType]}レーティング`}
+            color="orange.8"
+          />
         </div>
       )}
     </Stack>
