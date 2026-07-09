@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Badge,
@@ -59,12 +59,10 @@ function RecordsList() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  // 削除等でtotalPagesが減少した際に、現在のpageが範囲外になる場合は最終ページに戻す
-  useEffect(() => {
-    if (totalPages > 0 && page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [totalPages, page]);
+  // 削除等でtotalPagesが減少して現在のpageが範囲外になった場合は、最終ページへ補正する。
+  if (totalPages > 0 && page > totalPages) {
+    setPage(totalPages);
+  }
 
   const handleFilterChange = (value: string | null) => {
     const next = TAB_ITEMS.find((t) => t.value === value)?.value ?? "01game";
