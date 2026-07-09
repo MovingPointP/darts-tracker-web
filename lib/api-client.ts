@@ -28,7 +28,7 @@ export function useApiClient() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}) as Record<string, unknown>);
-        throw new Error((data.error as string) ?? "リクエストに失敗しました");
+        throw new Error((data.error as string) || "リクエストに失敗しました");
       }
 
       if (res.status === 204) {
