@@ -1,9 +1,10 @@
 "use client";
 
-import { ActionIcon, Badge, Group, Table, Text } from "@mantine/core";
+import { ActionIcon, Badge, Group, Table, Text, Tooltip } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
-import { VALUE_COLUMN_LABELS, type GameRecord, type GameType } from "@/types/record";
+import { VALUE_COLUMN_LABELS, type Award, type GameRecord, type GameType } from "@/types/record";
+import { AWARD_ICONS } from "@/lib/award-icons";
 import { fromApiDate } from "@/lib/date";
 
 interface RecordTableProps {
@@ -76,12 +77,23 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
             </Table.Td>
             <Table.Td visibleFrom="sm">
               {record.awards && Object.keys(record.awards).length > 0 && (
-                <Group gap={4} wrap="wrap">
-                  {Object.entries(record.awards).map(([award, count]) => (
-                    <Badge key={award} size="sm" variant="outline" color="teal" radius="sm">
-                      {count > 1 ? `${award} ×${count}` : award}
-                    </Badge>
-                  ))}
+                <Group gap="sm" wrap="wrap">
+                  {Object.entries(record.awards).map(([award, count]) => {
+                    const AwardIcon = AWARD_ICONS[award as Award];
+                    if (!AwardIcon) return null;
+                    return (
+                      <Tooltip key={award} label={count > 1 ? `${award} ×${count}` : award} withArrow>
+                        <Group gap={2} wrap="nowrap" align="center">
+                          <AwardIcon size={18} color="var(--mantine-color-teal-4)" />
+                          {count > 1 && (
+                            <Text size="xs" c="dimmed" fw={600}>
+                              ×{count}
+                            </Text>
+                          )}
+                        </Group>
+                      </Tooltip>
+                    );
+                  })}
                 </Group>
               )}
             </Table.Td>
