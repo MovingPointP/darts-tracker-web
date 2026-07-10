@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Badge, Center, Container, Loader, Paper, Stack, Table, Tabs, Text, Title } from "@mantine/core";
+import { Alert, Center, Container, Loader, Paper, Stack, Table, Tabs, Text, Title } from "@mantine/core";
 import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
@@ -81,9 +81,7 @@ function GameTypePanel({ gameType }: { gameType: GameType }) {
           <Table.Tbody>
             {orderedAwards.map((award) => (
               <Table.Tr key={award}>
-                <Table.Td>
-                  <Badge size="sm" variant="outline" color="teal" radius="sm">{award}</Badge>
-                </Table.Td>
+                <Table.Td fz={{ base: "xs", sm: "sm" }}>{award}</Table.Td>
                 <Table.Td ta="right" fw={600} fz={{ base: "xs", sm: "sm" }} c={summary.awards?.[award] ? undefined : "dimmed"}>
                   {summary.awards?.[award] ?? 0}
                 </Table.Td>
