@@ -1,11 +1,12 @@
 "use client";
 
-import { Alert, Center, Container, Loader, Paper, Stack, Table, Tabs, Text, Title } from "@mantine/core";
+import { useState } from "react";
+import { Alert, Center, Container, Group, Loader, Paper, SegmentedControl, Stack, Table, Tabs, Text, Title } from "@mantine/core";
 import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
 import { useDailyRatings } from "@/lib/use-daily-ratings";
-import { useSummaryStats } from "@/lib/use-summary-stats";
+import { useSummaryStats, type StatsRange } from "@/lib/use-summary-stats";
 import { AWARDS_BY_GAME_TYPE, GAME_TYPE_LABELS, VALUE_COLUMN_LABELS, type GameType } from "@/types/record";
 
 export default function StatsPage() {
@@ -19,10 +20,27 @@ export default function StatsPage() {
 const GAME_TYPES: GameType[] = ["01game", "cricket", "countup"];
 const HAS_RATING: Record<GameType, boolean> = { "01game": true, cricket: true, countup: false };
 
-function GameTypePanel({ gameType }: { gameType: GameType }) {
+type PeriodValue = "all" | "30d";
+
+const PERIOD_OPTIONS: { label: string; value: PeriodValue }[] = [
+  { label: "全期間", value: "all" },
+  { label: "直近30日", value: "30d" },
+];
+
+/** 期間プリセットを統計API用の日付範囲(YYYY-MM-DD)に変換する。 */
+function periodToRange(period: PeriodValue): StatsRange {
+  if (period === "30d") {
+    const d = new Date();
+    d.setDate(d.getDate() - 29);
+    return { from: d.toLocaleDateString("sv") };
+  }
+  return {};
+}
+
+function GameTypePanel({ gameType, range }: { gameType: GameType; range: StatsRange }) {
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const { summary, isLoading: isSummaryLoading, error: summaryError } = useSummaryStats(gameType);
-  const { dailyRatings, isLoading: isRatingLoading, error: ratingError } = useDailyRatings(gameType);
+  const { summary, isLoading: isSummaryLoading, error: summaryError } = useSummaryStats(gameType, range);
+  const { dailyRatings, isLoading: isRatingLoading, error: ratingError } = useDailyRatings(gameType, range);
 
   const isLoading = isSummaryLoading || (HAS_RATING[gameType] && isRatingLoading);
 
@@ -108,12 +126,22 @@ function GameTypePanel({ gameType }: { gameType: GameType }) {
 function StatsContent() {
   useDocumentTitle("成績サマリー | DARTS TRACKER");
   const isMobile = useMediaQuery("(max-width: 48em)");
+  const [period, setPeriod] = useState<PeriodValue>("all");
+  const range = periodToRange(period);
 
   return (
     <Container size="md">
-      <Title order={2} size={isMobile ? "h6" : undefined} mb={{ base: "sm", sm: "md" }}>
-        成績サマリー
-      </Title>
+      <Group justify="space-between" align="center" wrap="wrap" gap="xs" mb={{ base: "sm", sm: "md" }}>
+        <Title order={2} size={isMobile ? "h6" : undefined}>
+          成績サマリー
+        </Title>
+        <SegmentedControl
+          value={period}
+          onChange={(value) => setPeriod(value as PeriodValue)}
+          data={PERIOD_OPTIONS}
+          size={isMobile ? "xs" : "sm"}
+        />
+      </Group>
       <Tabs defaultValue="01game">
         <Tabs.List>
           {GAME_TYPES.map((gt) => (
@@ -124,7 +152,7 @@ function StatsContent() {
         </Tabs.List>
         {GAME_TYPES.map((gt) => (
           <Tabs.Panel key={gt} value={gt}>
-            <GameTypePanel gameType={gt} />
+            <GameTypePanel gameType={gt} range={range} />
           </Tabs.Panel>
         ))}
       </Tabs>
