@@ -8,7 +8,9 @@ import type { GameType } from "@/types/record";
 export interface GameSummary {
   total_games: number;
   best_value: number | null;
+  avg_value: number | null;
   best_rating: number | null;
+  avg_rating: number | null;
   awards: Record<string, number>;
 }
 
@@ -38,7 +40,7 @@ export function useSummaryStats(gameType: GameType, range?: StatsRange) {
   );
 
   return {
-    summary: data ?? { total_games: 0, best_value: null, best_rating: null, awards: {} },
+    summary: data ?? { total_games: 0, best_value: null, avg_value: null, best_rating: null, avg_rating: null, awards: {} },
     error,
     isLoading,
   };

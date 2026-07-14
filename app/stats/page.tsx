@@ -37,10 +37,28 @@ function periodToRange(period: PeriodValue): StatsRange {
   return {};
 }
 
+/** 数値を小数2桁で表示。nullは "—"。 */
+function fmt(value: number | null): string {
+  return value != null ? value.toFixed(2) : "—";
+}
+
+function StatCard({ label, value, isMobile }: { label: string; value: string | number; isMobile: boolean | undefined }) {
+  return (
+    <Paper p="md" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
+      <Text size="xs" c="dimmed" mb={4}>
+        {label}
+      </Text>
+      <Text size={isMobile ? "xl" : "2rem"} fw={700} c="teal.4">
+        {value}
+      </Text>
+    </Paper>
+  );
+}
+
 function GameTypePanel({ gameType, range }: { gameType: GameType; range: StatsRange }) {
   const isMobile = useMediaQuery("(max-width: 48em)");
   const { summary, isLoading: isSummaryLoading, error: summaryError } = useSummaryStats(gameType, range);
-  const { dailyRatings, isLoading: isRatingLoading, error: ratingError } = useDailyRatings(gameType, range);
+  const { dailyRatings, isLoading: isRatingLoading, error: ratingError } = useDailyRatings(gameType, range, HAS_RATING[gameType]);
 
   const isLoading = isSummaryLoading || (HAS_RATING[gameType] && isRatingLoading);
 
@@ -64,26 +82,15 @@ function GameTypePanel({ gameType, range }: { gameType: GameType; range: StatsRa
 
   return (
     <Stack gap={isMobile ? "md" : "xl"} pt="md">
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${HAS_RATING[gameType] ? 3 : 2}, 1fr)`, gap: "var(--mantine-spacing-md)" }}>
-        <Paper p="md" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
-          <Text size="xs" c="dimmed" mb={4}>総ゲーム数</Text>
-          <Text size={isMobile ? "xl" : "2rem"} fw={700} c="teal.4">
-            {summary.total_games}
-          </Text>
-        </Paper>
-        <Paper p="md" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
-          <Text size="xs" c="dimmed" mb={4}>{`最高${VALUE_COLUMN_LABELS[gameType]}`}</Text>
-          <Text size={isMobile ? "xl" : "2rem"} fw={700} c="teal.4">
-            {summary.best_value != null ? summary.best_value.toFixed(2) : "—"}
-          </Text>
-        </Paper>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(112px, 100%), 1fr))", gap: "var(--mantine-spacing-md)" }}>
+        <StatCard label="総ゲーム数" value={summary.total_games} isMobile={isMobile} />
+        <StatCard label={`最高${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.best_value)} isMobile={isMobile} />
+        <StatCard label={`平均${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.avg_value)} isMobile={isMobile} />
         {HAS_RATING[gameType] && (
-          <Paper p="md" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
-            <Text size="xs" c="dimmed" mb={4}>最高レーティング</Text>
-            <Text size={isMobile ? "xl" : "2rem"} fw={700} c="teal.4">
-              {summary.best_rating != null ? summary.best_rating.toFixed(2) : "—"}
-            </Text>
-          </Paper>
+          <>
+            <StatCard label="最高レーティング" value={fmt(summary.best_rating)} isMobile={isMobile} />
+            <StatCard label="平均レーティング" value={fmt(summary.avg_rating)} isMobile={isMobile} />
+          </>
         )}
       </div>
 
