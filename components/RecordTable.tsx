@@ -77,8 +77,8 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 88, sm: 140 }}>日付</Table.Th>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 60, sm: 110 }}>{VALUE_COLUMN_LABELS[gameType]}</Table.Th>
           <Table.Th ta="center" fz={{ base: "xs", sm: "sm" }} w={{ base: 64, sm: 120 }}>RT</Table.Th>
-          <Table.Th fz="sm" visibleFrom="sm">アワード</Table.Th>
-          <Table.Th w={{ base: 60, sm: 90 }} />
+          {!isMobile && <Table.Th fz="sm">アワード</Table.Th>}
+          <Table.Th w={{ sm: 90 }} />
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
@@ -102,9 +102,11 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
                     <Text size="sm" c="dimmed">—</Text>
                   )}
                 </Table.Td>
-                <Table.Td visibleFrom="sm">
-                  {hasAwards && <AwardIcons awards={record.awards} />}
-                </Table.Td>
+                {!isMobile && (
+                  <Table.Td>
+                    {hasAwards && <AwardIcons awards={record.awards} />}
+                  </Table.Td>
+                )}
                 <Table.Td>
                   <Group gap={2} justify="flex-end" wrap="nowrap">
                     <ActionIcon variant="subtle" color="gray" size={iconSize} onClick={() => onEdit(record)}>
@@ -117,8 +119,8 @@ export function RecordTable({ records, gameType, onEdit, onDelete, minRows }: Re
                 </Table.Td>
               </Table.Tr>
               {isMobile && hasAwards && (
-                <Table.Tr hiddenFrom="sm">
-                  <Table.Td colSpan={5} pt={0} pb="sm">
+                <Table.Tr>
+                  <Table.Td colSpan={4} pt={0} pb="sm">
                     <AwardIcons awards={record.awards} />
                   </Table.Td>
                 </Table.Tr>
