@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Center, Container, Group, Loader, Paper, SegmentedControl, Stack, Table, Tabs, Text, Title } from "@mantine/core";
+import { Alert, Center, Container, Group, Loader, SegmentedControl, Stack, Table, Tabs, Text, Title } from "@mantine/core";
 import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
 import { RatingChart } from "@/components/RatingChart";
+import { StatCard } from "@/components/StatCard";
 import { useDailyRatings } from "@/lib/use-daily-ratings";
 import { useSummaryStats, type StatsRange } from "@/lib/use-summary-stats";
 import { AWARDS_BY_GAME_TYPE, GAME_TYPE_LABELS, VALUE_COLUMN_LABELS, type GameType } from "@/types/record";
@@ -42,19 +43,6 @@ function fmt(value: number | null): string {
   return value != null ? value.toFixed(2) : "—";
 }
 
-function StatCard({ label, value, isMobile }: { label: string; value: string | number; isMobile: boolean | undefined }) {
-  return (
-    <Paper p="md" radius="md" withBorder style={{ borderColor: "var(--mantine-color-dark-5)" }}>
-      <Text size="xs" c="dimmed" mb={4}>
-        {label}
-      </Text>
-      <Text size={isMobile ? "xl" : "2rem"} fw={700} c="teal.4">
-        {value}
-      </Text>
-    </Paper>
-  );
-}
-
 function GameTypePanel({ gameType, range }: { gameType: GameType; range: StatsRange }) {
   const isMobile = useMediaQuery("(max-width: 48em)");
   const { summary, isLoading: isSummaryLoading, error: summaryError } = useSummaryStats(gameType, range);
@@ -82,14 +70,14 @@ function GameTypePanel({ gameType, range }: { gameType: GameType; range: StatsRa
 
   return (
     <Stack gap={isMobile ? "md" : "xl"} pt="md">
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(112px, 100%), 1fr))", gap: "var(--mantine-spacing-md)" }}>
-        <StatCard label="総ゲーム数" value={summary.total_games} isMobile={isMobile} />
-        <StatCard label={`最高${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.best_value)} isMobile={isMobile} />
-        <StatCard label={`平均${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.avg_value)} isMobile={isMobile} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(80px, 100%), 1fr))", gap: "var(--mantine-spacing-md)" }}>
+        <StatCard label="総ゲーム数" value={summary.total_games} />
+        <StatCard label={`最高${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.best_value)} />
+        <StatCard label={`平均${VALUE_COLUMN_LABELS[gameType]}`} value={fmt(summary.avg_value)} />
         {HAS_RATING[gameType] && (
           <>
-            <StatCard label="最高レーティング" value={fmt(summary.best_rating)} isMobile={isMobile} />
-            <StatCard label="平均レーティング" value={fmt(summary.avg_rating)} isMobile={isMobile} />
+            <StatCard label="最高RT" value={fmt(summary.best_rating)} />
+            <StatCard label="平均RT" value={fmt(summary.avg_rating)} />
           </>
         )}
       </div>

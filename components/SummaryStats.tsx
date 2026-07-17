@@ -1,22 +1,10 @@
-import { Paper, SimpleGrid, Text } from "@mantine/core";
+import { SimpleGrid } from "@mantine/core";
+import { StatCard } from "./StatCard";
 import { VALUE_COLUMN_LABELS, type GameRecord, type GameType } from "@/types/record";
 
 interface SummaryStatsProps {
   records: GameRecord[];
   gameType: GameType;
-}
-
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <Paper withBorder p="sm" radius="md">
-      <Text size="xs" c="dimmed" mb={2}>
-        {label}
-      </Text>
-      <Text fw={700} size="sm">
-        {value}
-      </Text>
-    </Paper>
-  );
 }
 
 function formatValue(value: number, gameType: GameType): string {
@@ -42,7 +30,7 @@ export function SummaryStats({ records, gameType }: SummaryStatsProps) {
   const cols = hasRating ? 3 : 2;
 
   return (
-    <SimpleGrid cols={{ base: 2, xs: cols }} mb="md">
+    <SimpleGrid cols={cols} mb="md">
       <StatCard label={`最高${valueLabel}`} value={formatValue(maxValue, gameType)} />
       <StatCard label={`平均${valueLabel}`} value={formatValue(avgValue, gameType)} />
       {hasRating && (
