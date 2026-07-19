@@ -24,7 +24,6 @@ import { RecordForm, type RecordFormValues } from "@/components/RecordForm";
 import { useGameRecords } from "@/lib/use-game-records";
 import { fromApiDate, toApiDate } from "@/lib/date";
 import { GAME_TYPE_LABELS, type GameRecord, type GameType } from "@/types/record";
-import { SummaryStats } from "@/components/SummaryStats";
 
 const TAB_ITEMS: { value: GameType; label: string }[] = [
   { value: "01game", label: GAME_TYPE_LABELS["01game"] },
@@ -172,7 +171,6 @@ function RecordsList() {
       ) : (
         !error && (
           <>
-            <SummaryStats records={records} gameType={gameType} />
             <RecordsChart records={records} />
             <RecordTable
               records={records}
