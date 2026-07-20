@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { callGoBackend } from "@/lib/server/go-backend";
 import { setAuthCookies } from "@/lib/server/auth-cookies";
+import { translateSupabaseAuthError } from "@/lib/server/supabase-errors";
 
 interface SupabaseLoginResponse {
   access_token?: string;
@@ -26,9 +27,7 @@ export async function POST(request: Request) {
 
   if (!goResponse.ok || !data.access_token || !data.refresh_token) {
     return NextResponse.json(
-      {
-        error: data.error_description ?? data.msg ?? data.error ?? "ログインに失敗しました",
-      },
+      { error: translateSupabaseAuthError(data, "ログインに失敗しました") },
       { status: goResponse.ok ? 401 : goResponse.status },
     );
   }

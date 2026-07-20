@@ -15,6 +15,13 @@ import {
   subscribe,
 } from "./auth-flag-store";
 
+/** パスワードリセットのメールリンク経由で発行されるリカバリーセッション。 */
+export interface RecoverySession {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn?: number;
+}
+
 interface AuthContextValue {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -23,6 +30,8 @@ interface AuthContextValue {
     password: string,
   ) => Promise<{ requiresEmailConfirmation: boolean }>;
   logout: () => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  resetPassword: (session: RecoverySession, password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -73,8 +82,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearAuthenticatedFlag();
   }, []);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const res = await fetch("/api/auth/recover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      throw new Error(await extractErrorMessage(res));
+    }
+  }, []);
+
+  const resetPassword = useCallback(
+    async (session: RecoverySession, password: string) => {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: session.accessToken,
+          refresh_token: session.refreshToken,
+          expires_in: session.expiresIn,
+          password,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(await extractErrorMessage(res));
+      }
+      // 再設定成功時はリカバリーセッションがそのままログインセッションになる。
+      setAuthenticatedFlag();
+    },
+    [],
+  );
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        login,
+        signup,
+        logout,
+        requestPasswordReset,
+        resetPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

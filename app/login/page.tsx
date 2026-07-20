@@ -83,6 +83,11 @@ function LoginForm() {
           </Stack>
         </form>
         <Text size="sm" mt="md">
+          <Anchor component={Link} href="/forgot-password">
+            パスワードをお忘れですか？
+          </Anchor>
+        </Text>
+        <Text size="sm" mt="xs">
           アカウントをお持ちでない場合は{" "}
           <Anchor component={Link} href="/signup">
             サインアップ
