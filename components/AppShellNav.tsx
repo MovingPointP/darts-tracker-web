@@ -9,10 +9,10 @@ import {
   Box,
   Burger,
   Group,
+  Menu,
   NavLink,
   Text,
   Title,
-  Tooltip,
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import {
@@ -20,6 +20,8 @@ import {
   IconPlus,
   IconChartLine,
   IconLogout,
+  IconSettings,
+  IconUserCircle,
 } from "@tabler/icons-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -75,17 +77,35 @@ export function AppShellNav({ children }: { children: ReactNode }) {
               <Text span c="dark.1" fw={300} inherit> TRACKER</Text>
             </Title>
           </Group>
-          <Tooltip label="ログアウト" position="bottom">
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="lg"
-              aria-label="ログアウト"
-              onClick={logout}
-            >
-              <IconLogout size={18} />
-            </ActionIcon>
-          </Tooltip>
+          <Menu position="bottom-end" width={190} withinPortal>
+            <Menu.Target>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="lg"
+                aria-label="アカウントメニュー"
+              >
+                <IconUserCircle size={20} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                component={Link}
+                href="/settings"
+                leftSection={<IconSettings size={16} stroke={1.5} />}
+              >
+                アカウント設定
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                color="red"
+                leftSection={<IconLogout size={16} stroke={1.5} />}
+                onClick={logout}
+              >
+                ログアウト
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </AppShell.Header>
 
