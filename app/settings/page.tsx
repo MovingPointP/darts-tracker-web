@@ -14,6 +14,7 @@ import {
   PasswordInput,
   Stack,
   Text,
+  TextInput,
   Title,
 } from "@mantine/core";
 import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
@@ -32,6 +33,11 @@ const schema = z
     path: ["confirm"],
   });
 
+const emailSchema = z.object({
+  new_email: z.email({ error: "有効なメールアドレスを入力してください" }),
+  current_password: z.string().min(1, { error: "現在のパスワードを入力してください" }),
+});
+
 export default function SettingsPage() {
   return (
     <RequireAuth>
@@ -43,7 +49,7 @@ export default function SettingsPage() {
 function SettingsContent() {
   useDocumentTitle("アカウント設定 | DARTS TRACKER");
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const { user, error: userError, isLoading } = useCurrentUser();
+  const { user, error: userError, isLoading, mutate } = useCurrentUser();
 
   return (
     <Container size="sm">
@@ -55,10 +61,12 @@ function SettingsContent() {
         <AccountInfoSection
           email={user?.email}
           createdAt={user?.created_at}
+          pendingEmail={user?.new_email}
           isLoading={isLoading}
           hasError={Boolean(userError)}
           isMobile={isMobile}
         />
+        <EmailSection isMobile={isMobile} onChanged={mutate} />
         <PasswordSection isMobile={isMobile} />
       </Stack>
     </Container>
@@ -92,12 +100,14 @@ function SectionPaper({
 function AccountInfoSection({
   email,
   createdAt,
+  pendingEmail,
   isLoading,
   hasError,
   isMobile,
 }: {
   email: string | undefined;
   createdAt: string | undefined;
+  pendingEmail: string | undefined;
   isLoading: boolean;
   hasError: boolean;
   isMobile: boolean | undefined;
@@ -128,8 +138,91 @@ function AccountInfoSection({
               {createdAt ? fromApiDate(createdAt) : "—"}
             </Text>
           </Group>
+          {pendingEmail && (
+            <Alert color="blue" mt="xs">
+              {pendingEmail} への変更を確認待ちです。届いた確認メールのリンクを開いてください。
+            </Alert>
+          )}
         </Stack>
       )}
+    </SectionPaper>
+  );
+}
+
+function EmailSection({
+  isMobile,
+  onChanged,
+}: {
+  isMobile: boolean | undefined;
+  onChanged: () => void;
+}) {
+  const fieldSize = isMobile ? "xs" : undefined;
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [succeeded, setSucceeded] = useState(false);
+
+  const form = useForm({
+    initialValues: { new_email: "", current_password: "" },
+    validate: schemaResolver(emailSchema, { sync: true }),
+  });
+
+  const handleSubmit = form.onSubmit(async (values) => {
+    setSubmitting(true);
+    setErrorMessage(null);
+    setSucceeded(false);
+    try {
+      const res = await fetch("/api/auth/change-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          new_email: values.new_email,
+          current_password: values.current_password,
+        }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "メールアドレスの変更申請に失敗しました");
+      }
+      form.reset();
+      setSucceeded(true);
+      onChanged();
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error ? err.message : "メールアドレスの変更申請に失敗しました",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  });
+
+  return (
+    <SectionPaper title="メールアドレスの変更" isMobile={isMobile}>
+      <form onSubmit={handleSubmit}>
+        <Stack gap={isMobile ? "sm" : undefined}>
+          {errorMessage && <Alert color="red">{errorMessage}</Alert>}
+          {succeeded && (
+            <Alert color="teal">
+              確認メールを送信しました。メール内のリンクを開くと変更が完了します。
+            </Alert>
+          )}
+          <TextInput
+            label="新しいメールアドレス"
+            placeholder="you@example.com"
+            size={fieldSize}
+            {...form.getInputProps("new_email")}
+          />
+          <PasswordInput
+            label="現在のパスワード"
+            size={fieldSize}
+            {...form.getInputProps("current_password")}
+          />
+          <Group justify="flex-end">
+            <Button type="submit" size={fieldSize} loading={submitting}>
+              確認メールを送信
+            </Button>
+          </Group>
+        </Stack>
+      </form>
     </SectionPaper>
   );
 }

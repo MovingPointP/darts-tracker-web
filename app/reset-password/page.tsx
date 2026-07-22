@@ -18,7 +18,8 @@ import {
   Title,
 } from "@mantine/core";
 import { useDocumentTitle } from "@mantine/hooks";
-import { useAuth, type RecoverySession } from "@/lib/auth-context";
+import { useAuth } from "@/lib/auth-context";
+import { parseAuthHash } from "@/lib/auth-hash";
 import { useHasMounted } from "@/lib/use-has-mounted";
 
 const schema = z
@@ -31,34 +32,6 @@ const schema = z
     path: ["confirm"],
   });
 
-/** Supabaseのリカバリーリンクが付与するURLフラグメントを解析する。 */
-function parseRecoveryHash(hash: string):
-  | { session: RecoverySession }
-  | { error: string }
-  | null {
-  const params = new URLSearchParams(hash.replace(/^#/, ""));
-
-  const error = params.get("error_description") ?? params.get("error");
-  if (error) {
-    return { error: decodeURIComponent(error.replace(/\+/g, " ")) };
-  }
-
-  const accessToken = params.get("access_token");
-  const refreshToken = params.get("refresh_token");
-  if (accessToken && refreshToken) {
-    const expiresIn = Number(params.get("expires_in"));
-    return {
-      session: {
-        accessToken,
-        refreshToken,
-        expiresIn: Number.isFinite(expiresIn) && expiresIn > 0 ? expiresIn : undefined,
-      },
-    };
-  }
-
-  return null;
-}
-
 export default function ResetPasswordPage() {
   useDocumentTitle("新しいパスワードの設定 | DARTS TRACKER");
   const { resetPassword } = useAuth();
@@ -70,7 +43,7 @@ export default function ResetPasswordPage() {
 
   // リカバリートークンはURLフラグメント(#...)に付与されるためクライアントでのみ読み取れる。
   const recovery = useMemo(
-    () => (mounted ? parseRecoveryHash(window.location.hash) : null),
+    () => (mounted ? parseAuthHash(window.location.hash) : null),
     [mounted],
   );
 

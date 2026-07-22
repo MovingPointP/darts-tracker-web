@@ -14,13 +14,10 @@ import {
   setAuthenticatedFlag,
   subscribe,
 } from "./auth-flag-store";
+import type { AuthHashSession } from "./auth-hash";
 
 /** パスワードリセットのメールリンク経由で発行されるリカバリーセッション。 */
-export interface RecoverySession {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn?: number;
-}
+export type RecoverySession = AuthHashSession;
 
 interface AuthContextValue {
   isAuthenticated: boolean;
