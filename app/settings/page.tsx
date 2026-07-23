@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm, schemaResolver } from "@mantine/form";
 import {
@@ -10,6 +11,7 @@ import {
   Container,
   Group,
   Loader,
+  Modal,
   Paper,
   PasswordInput,
   Stack,
@@ -17,8 +19,9 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useDocumentTitle, useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useDocumentTitle, useMediaQuery } from "@mantine/hooks";
 import { RequireAuth } from "@/components/RequireAuth";
+import { useAuth } from "@/lib/auth-context";
 import { useCurrentUser } from "@/lib/use-current-user";
 import { fromApiDate } from "@/lib/date";
 
@@ -68,6 +71,7 @@ function SettingsContent() {
         />
         <EmailSection isMobile={isMobile} onChanged={mutate} />
         <PasswordSection isMobile={isMobile} />
+        <DangerZoneSection email={user?.email} isMobile={isMobile} />
       </Stack>
     </Container>
   );
@@ -295,5 +299,112 @@ function PasswordSection({ isMobile }: { isMobile: boolean | undefined }) {
         </Stack>
       </form>
     </SectionPaper>
+  );
+}
+
+function DangerZoneSection({
+  email,
+  isMobile,
+}: {
+  email: string | undefined;
+  isMobile: boolean | undefined;
+}) {
+  const fieldSize = isMobile ? "xs" : undefined;
+  const router = useRouter();
+  const { deleteAccount } = useAuth();
+  const [opened, { open, close }] = useDisclosure(false);
+  const [password, setPassword] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // メールが一致し、パスワードが入力されているときのみ削除を許可する。
+  const canDelete =
+    password.length > 0 &&
+    email != null &&
+    emailConfirm.trim().toLowerCase() === email.toLowerCase();
+
+  const handleClose = () => {
+    setPassword("");
+    setEmailConfirm("");
+    setErrorMessage(null);
+    close();
+  };
+
+  const handleDelete = async () => {
+    if (!canDelete || !email) return;
+    setSubmitting(true);
+    setErrorMessage(null);
+    try {
+      await deleteAccount(password, email);
+      router.replace("/login");
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error ? err.message : "アカウントの削除に失敗しました",
+      );
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Paper
+      p={{ base: "md", sm: "xl" }}
+      radius="md"
+      withBorder
+      style={{ borderColor: "var(--mantine-color-red-9)" }}
+    >
+      <Text fw={500} size={isMobile ? "sm" : undefined} c="red.4" mb="xs">
+        アカウントの削除
+      </Text>
+      <Text size="sm" c="dimmed" mb="md">
+        アカウントとすべての記録が完全に削除されます。この操作は元に戻せません。
+      </Text>
+      <Group justify="flex-end">
+        <Button color="red" variant="light" size={fieldSize} onClick={open}>
+          アカウントを削除
+        </Button>
+      </Group>
+
+      <Modal opened={opened} onClose={handleClose} title="アカウントを削除" lockScroll={false}>
+        <Stack>
+          <Alert color="red">
+            すべての記録とアカウントが完全に削除されます。この操作は元に戻せません。
+          </Alert>
+          {errorMessage && <Alert color="red">{errorMessage}</Alert>}
+          <Text size="sm">
+            確認のため、現在のパスワードと登録メールアドレス
+            {email ? `（${email}）` : ""}
+            を入力してください。
+          </Text>
+          <PasswordInput
+            label="現在のパスワード"
+            size={fieldSize}
+            value={password}
+            onChange={(e) => setPassword(e.currentTarget.value)}
+          />
+          <TextInput
+            label="メールアドレス"
+            placeholder={email ?? "you@example.com"}
+            size={fieldSize}
+            value={emailConfirm}
+            onChange={(e) => setEmailConfirm(e.currentTarget.value)}
+          />
+          <Group justify="flex-end" gap="sm">
+            <Button variant="default" size={fieldSize} onClick={handleClose}>
+              キャンセル
+            </Button>
+            <Button
+              color="red"
+              size={fieldSize}
+              disabled={!canDelete}
+              loading={submitting}
+              onClick={handleDelete}
+            >
+              削除する
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+    </Paper>
   );
 }

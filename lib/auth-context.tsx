@@ -29,6 +29,7 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<void>;
   resetPassword: (session: RecoverySession, password: string) => Promise<void>;
+  deleteAccount: (currentPassword: string, email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -111,6 +112,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const deleteAccount = useCallback(
+    async (currentPassword: string, email: string) => {
+      const res = await fetch("/api/auth/account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ current_password: currentPassword, email }),
+      });
+      if (!res.ok) {
+        throw new Error(await extractErrorMessage(res));
+      }
+      clearAuthenticatedFlag();
+    },
+    [],
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -120,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         requestPasswordReset,
         resetPassword,
+        deleteAccount,
       }}
     >
       {children}
